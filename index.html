@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gacha Hub | HSR & Endfield</title>
+    <style>
+        :root {
+            --bg-dark: #0d1117;
+            --panel-bg: #161b22;
+            --border-color: #30363d;
+            --text-main: #c9d1d9;
+            --text-muted: #8b949e;
+            --accent: #58a6ff;
+            --accent-hover: #1f6feb;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Top Navigation */
+        .nav-header {
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-tabs button {
+            background: transparent;
+            color: var(--text-muted);
+            border: none;
+            font-size: 16px;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: 0.2s;
+        }
+
+        .nav-tabs button:hover {
+            color: var(--text-main);
+        }
+
+        .nav-tabs button.active {
+            color: var(--accent);
+            border-bottom: 2px solid var(--accent);
+            font-weight: bold;
+        }
+
+        /* Drag & Drop Zone */
+        #drop-zone {
+            background: var(--panel-bg);
+            border: 2px dashed var(--border-color);
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        #drop-zone.dragover {
+            border-color: var(--accent);
+            background: rgba(88, 166, 255, 0.1);
+            color: var(--accent);
+        }
+
+        /* Dynamic Content Area */
+        .app-view {
+            display: none;
+        }
+
+        .app-view.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="nav-header">
+        <h1 style="margin: 0; color: var(--accent);">Gacha Hub</h1>
+        <div class="nav-tabs">
+            <button class="tab-btn active" onclick="switchTab('hsr-view')">HSR Dashboard</button>
+            <button class="tab-btn" onclick="switchTab('endfield-view')">Endfield Dashboard</button>
+            <button class="tab-btn" onclick="switchTab('essence-view')">Essence Checker</button>
+        </div>
+    </div>
+
+    <div id="drop-zone">
+        <h3>Drag & Drop JSON files here</h3>
+        <p>Supports hsr_*.json and endfield_*.json</p>
+        <input type="file" id="file-input" style="display: none;" accept=".json" multiple>
+        <button onclick="document.getElementById('file-input').click()" style="padding: 8px 16px; background: var(--border-color); color: white; border: none; border-radius: 4px; cursor: pointer; margin-top: 10px;">Or Click to Browse</button>
+    </div>
+
+    <div id="hsr-view" class="app-view active">
+        <h2>Honkai: Star Rail</h2>
+        <div id="hsr-content"><p style="color: var(--text-muted);">Awaiting data...</p></div>
+    </div>
+
+    <div id="endfield-view" class="app-view">
+        <h2>Arknights: Endfield</h2>
+        <div id="endfield-content"><p style="color: var(--text-muted);">Awaiting data...</p></div>
+    </div>
+
+    <div id="essence-view" class="app-view">
+        <h2>Essence Checker Tool</h2>
+        <p>Select your 3 stats to find matching weapons.</p>
+        </div>
+</div>
+
+<script>
+    // --- Navigation Logic ---
+    function switchTab(tabId) {
+        // Hide all views
+        document.querySelectorAll('.app-view').forEach(view => {
+            view.classList.remove('active');
+        });
+        // Deactivate all buttons
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        
+        // Activate target
+        document.getElementById(tabId).classList.add('active');
+        event.currentTarget.classList.add('active');
+    }
+
+    // --- Drag and Drop Logic ---
+    const dropZone = document.getElementById('drop-zone');
+    const fileInput = document.getElementById('file-input');
+
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.classList.add('dragover');
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+        dropZone.classList.remove('dragover');
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+        handleFiles(e.dataTransfer.files);
+    });
+
+    fileInput.addEventListener('change', (e) => {
+        handleFiles(e.target.files);
+    });
+
+    function handleFiles(files) {
+        for (let file of files) {
+            if (file.name.endsWith('.json')) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const data = JSON.parse(e.target.result);
+                        processFile(file.name, data);
+                    } catch (error) {
+                        alert("Error parsing JSON file: " + file.name);
+                    }
+                };
+                reader.readAsText(file);
+            }
+        }
+    }
+
+    function processFile(filename, data) {
+        console.log("Loaded:", filename);
+        // Next step: Route data to the correct dashboard based on filename!
+        if (filename.startsWith('hsr_')) {
+            document.getElementById('hsr-content').innerHTML = `<p style="color: #3fb950;">Successfully loaded ${filename} with ${data.length} records!</p>`;
+            switchTab('hsr-view'); // Auto-switch to HSR tab
+        } else if (filename.startsWith('endfield_')) {
+            document.getElementById('endfield-content').innerHTML = `<p style="color: #3fb950;">Successfully loaded ${filename} with ${data.length} records!</p>`;
+            switchTab('endfield-view'); // Auto-switch to Endfield tab
+        } else {
+            alert("Unrecognized file type. Please use hsr_*.json or endfield_*.json");
+        }
+    }
+</script>
+</body>
+</html>
