@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Astral Gacha Hub</title>
+    <title>Gacha Hub</title>
     <style>
         :root {
             --bg-dark: #0d1117; --panel-bg: #161b22; --border-color: #30363d;
@@ -60,16 +60,16 @@
 
         /* Essence Tool Styles */
         .essence-box { background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 20px; }
-        .stat-select { background: #21262d; color: white; border: 1px solid var(--border-color); padding: 10px; border-radius: 4px; font-size: 16px; outline: none; flex: 1; }
+        .stat-select { background: #21262d; color: white; border: 1px solid var(--border-color); padding: 10px; border-radius: 4px; font-size: 16px; outline: none; flex: 1; min-width: 150px; }
         .check-btn { background: var(--accent); color: #0d1117; font-weight: bold; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; transition: 0.2s; }
-        .check-btn:hover { background: var(--accent-hover); color: white; }
+        .check-btn:hover { background: #1f6feb; color: white; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="nav-header">
-        <h1 style="margin: 0; color: var(--accent);">Astral Gacha Hub</h1>
+        <h1 style="margin: 0; color: var(--accent);">Gacha Hub</h1>
         <div class="nav-tabs">
             <button class="tab-btn active" onclick="switchTab('hsr-view')">HSR Dashboard</button>
             <button class="tab-btn" onclick="switchTab('endfield-view')">Endfield Dashboard</button>
@@ -96,35 +96,12 @@
         <div class="essence-box">
             <p>Select the 3 stats rolled on your essence:</p>
             <div style="display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap;">
-                <select id="stat1" class="stat-select">
-                    <option value="">-- Stat 1 --</option>
-                    <option value="ATK%">ATK%</option>
-                    <option value="DEF%">DEF%</option>
-                    <option value="HP%">HP%</option>
-                    <option value="Crit Rate">Crit Rate</option>
-                    <option value="Crit DMG">Crit DMG</option>
-                    <option value="Energy Regen">Energy Regen</option>
-                </select>
-                <select id="stat2" class="stat-select">
-                    <option value="">-- Stat 2 --</option>
-                    <option value="ATK%">ATK%</option>
-                    <option value="DEF%">DEF%</option>
-                    <option value="HP%">HP%</option>
-                    <option value="Crit Rate">Crit Rate</option>
-                    <option value="Crit DMG">Crit DMG</option>
-                    <option value="Energy Regen">Energy Regen</option>
-                </select>
-                <select id="stat3" class="stat-select">
-                    <option value="">-- Stat 3 --</option>
-                    <option value="ATK%">ATK%</option>
-                    <option value="DEF%">DEF%</option>
-                    <option value="HP%">HP%</option>
-                    <option value="Crit Rate">Crit Rate</option>
-                    <option value="Crit DMG">Crit DMG</option>
-                    <option value="Energy Regen">Energy Regen</option>
-                </select>
+                <select id="stat1" class="stat-select"><option value="">-- Stat 1 --</option></select>
+                <select id="stat2" class="stat-select"><option value="">-- Stat 2 --</option></select>
+                <select id="stat3" class="stat-select"><option value="">-- Stat 3 --</option></select>
             </div>
             <button class="check-btn" onclick="checkEssence()">Check Weapons</button>
+            <button onclick="clearEssence()" style="background: transparent; border: 1px solid var(--border-color); color: var(--text-muted); padding: 10px 20px; border-radius: 4px; cursor: pointer; margin-left: 10px;">Clear</button>
             <div id="essence-result" style="margin-top: 20px; font-weight: bold; font-size: 1.1em;"></div>
         </div>
     </div>
@@ -137,12 +114,18 @@
     function switchTab(tabId) {
         document.querySelectorAll('.app-view').forEach(v => v.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        
         document.getElementById(tabId).classList.add('active');
-        event.currentTarget.classList.add('active');
+        
+        // Fix: Use CSS selector to find the correct button, allowing programmatic switching
+        const activeBtn = document.querySelector(`button[onclick="switchTab('${tabId}')"]`);
+        if (activeBtn) activeBtn.classList.add('active');
     }
 
     // Load saved data when you open the website
     window.onload = () => {
+        initEssenceDropdowns(); // Populate the Arknights dropdowns
+        
         const savedHSR = localStorage.getItem('hsr_saved_data');
         if (savedHSR) {
             try {
@@ -168,7 +151,6 @@
                 let reader = new FileReader();
                 reader.onload = e => {
                     let data;
-                    // Fix 1: Separate JSON parse from the build execution
                     try {
                         data = JSON.parse(e.target.result);
                     } catch (err) { 
@@ -176,10 +158,9 @@
                         return;
                     }
                     
-                    // Fix 2: Wrap Builder in its own try/catch and Save to Memory
                     try {
                         if(file.name.startsWith('hsr_')) { 
-                            localStorage.setItem('hsr_saved_data', JSON.stringify(data)); // SAVE IT!
+                            localStorage.setItem('hsr_saved_data', JSON.stringify(data)); 
                             buildHSR(data); 
                             switchTab('hsr-view'); 
                         } else if(file.name.startsWith('endfield_')) { 
@@ -200,12 +181,34 @@
     // ==========================================
     
     // MANUAL DATABASE: Add/Edit weapons and their required 3 stats here!
-    // Make sure the spelling matches the dropdown menu options perfectly.
     const ENDFIELD_WEAPONS = [
-        { name: "Wolfsfang (Prototype)", stats: ["ATK%", "Crit Rate", "Crit DMG"] },
-        { name: "Guardian's Vow", stats: ["DEF%", "HP%", "Energy Regen"] },
-        { name: "Example Duplicate Stat Weapon", stats: ["ATK%", "ATK%", "Crit Rate"] }
+        { name: "Exemplar", stats: ["Main Attribute Boost", "Attack Boost", "Suppression"] }, 
+        { name: "Former Finery", stats: ["Will", "HP Boost", "Efficacy"] }
     ];
+
+    // Dynamically populates the 3 dropdowns based on the ENDFIELD_WEAPONS database
+    function initEssenceDropdowns() {
+        let uniqueStats = new Set();
+        
+        // Extract every stat from every weapon
+        ENDFIELD_WEAPONS.forEach(weapon => {
+            weapon.stats.forEach(stat => uniqueStats.add(stat));
+        });
+        
+        // Sort them alphabetically for a clean UI
+        let sortedStats = Array.from(uniqueStats).sort();
+        
+        // Inject into the HTML selects
+        ['stat1', 'stat2', 'stat3'].forEach(id => {
+            let selectElement = document.getElementById(id);
+            sortedStats.forEach(stat => {
+                let option = document.createElement("option");
+                option.value = stat;
+                option.text = stat;
+                selectElement.appendChild(option);
+            });
+        });
+    }
 
     function checkEssence() {
         let s1 = document.getElementById('stat1').value;
@@ -234,6 +237,13 @@
         } else {
             resultDiv.innerHTML = `<span style="color: var(--text-muted);">❌ No weapons currently use this exact combination. Safe to scrap or reroll.</span>`;
         }
+    }
+    
+    function clearEssence() {
+        document.getElementById('stat1').value = "";
+        document.getElementById('stat2').value = "";
+        document.getElementById('stat3').value = "";
+        document.getElementById('essence-result').innerHTML = "";
     }
 
     // ==========================================
@@ -281,7 +291,6 @@
 
     function buildHSR(data) {
         let banners = { '11': [], '12': [], '1': [], '21': [], '22': [] };
-        // Fix for undefined gacha types breaking the loop
         data.forEach(item => { if(item.gacha_type && banners[item.gacha_type]) banners[item.gacha_type].push(item); });
 
         let html = "<div class='grid'>";
@@ -320,7 +329,6 @@
                         status = "4-STAR"; statusClass = "badge badge-4star"; has4Star = true;
                     }
                     
-                    // Added fallback if 'time' is missing
                     let dateStr = item.time ? item.time.split(' ')[0] : "Unknown";
                     history.push({ name: item.name, pity: pity, status: status, class: statusClass, date: dateStr, is_win: isWin, rank: item.rank_type });
                     if (is5Star) pity = 0;
