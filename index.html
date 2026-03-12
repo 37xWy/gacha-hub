@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gacha Hub</title>
+    <title>Astral Gacha Hub</title>
     <style>
         :root {
             --bg-dark: #0d1117; --panel-bg: #161b22; --border-color: #30363d;
@@ -12,7 +12,6 @@
         body { background-color: var(--bg-dark); color: var(--text-main); font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; }
         .container { max-width: 1200px; margin: 0 auto; }
         
-        /* Navigation & Drag Zone */
         .nav-header { border-bottom: 2px solid var(--border-color); padding-bottom: 15px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
         .nav-tabs button { background: transparent; color: var(--text-muted); border: none; font-size: 16px; padding: 10px 15px; cursor: pointer; border-bottom: 2px solid transparent; transition: 0.2s; }
         .nav-tabs button:hover { color: var(--text-main); }
@@ -23,7 +22,7 @@
         .app-view { display: none; } .app-view.active { display: block; animation: fadeIn 0.3s; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* HSR Dashboard Styles (Imported from V13) */
+        /* Dashboard Styles */
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(500px, 1fr)); gap: 30px; margin-top: 20px; }
         .card { background-color: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.5); display: flex; flex-direction: column; }
         .card-header { display: flex; justify-content: space-between; margin-bottom: 15px; }
@@ -58,6 +57,12 @@
         .toggle-btn { background: none; border: 1px solid var(--border-color); color: var(--text-muted); font-size: 0.8em; padding: 4px 8px; border-radius: 4px; cursor: pointer; }
         .toggle-btn.active { background: rgba(163, 113, 247, 0.2); border-color: #a371f7; color: #a371f7; }
         .hide-4stars .row-4star { display: none !important; }
+
+        /* Essence Tool Styles */
+        .essence-box { background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 20px; }
+        .stat-select { background: #21262d; color: white; border: 1px solid var(--border-color); padding: 10px; border-radius: 4px; font-size: 16px; outline: none; flex: 1; }
+        .check-btn { background: var(--accent); color: #0d1117; font-weight: bold; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; transition: 0.2s; }
+        .check-btn:hover { background: var(--accent-hover); color: white; }
     </style>
 </head>
 <body>
@@ -74,26 +79,61 @@
 
     <div id="drop-zone" onclick="document.getElementById('file-input').click()">
         <h3>Drag & Drop JSON files here (or click to browse)</h3>
-        <p>Supports hsr_*.json and endfield_*.json</p>
+        <p>Your data is saved locally in your browser automatically.</p>
         <input type="file" id="file-input" style="display: none;" accept=".json" multiple>
     </div>
 
     <div id="hsr-view" class="app-view active">
-        <div id="hsr-content"><p style="color: var(--text-muted); text-align: center;">Awaiting HSR data...</p></div>
+        <div id="hsr-content"><p style="color: var(--text-muted); text-align: center;">No local HSR data found. Please drop a file.</p></div>
     </div>
 
     <div id="endfield-view" class="app-view">
-        <div id="endfield-content"><p style="color: var(--text-muted); text-align: center;">Awaiting Endfield data...</p></div>
+        <div id="endfield-content"><p style="color: var(--text-muted); text-align: center;">Endfield layout coming soon.</p></div>
     </div>
 
     <div id="essence-view" class="app-view">
-        <h2>Essence Checker Tool</h2>
-        <p style="color: var(--text-muted);">Data extraction pending...</p>
+        <h2>Endfield Essence Matcher</h2>
+        <div class="essence-box">
+            <p>Select the 3 stats rolled on your essence:</p>
+            <div style="display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap;">
+                <select id="stat1" class="stat-select">
+                    <option value="">-- Stat 1 --</option>
+                    <option value="ATK%">ATK%</option>
+                    <option value="DEF%">DEF%</option>
+                    <option value="HP%">HP%</option>
+                    <option value="Crit Rate">Crit Rate</option>
+                    <option value="Crit DMG">Crit DMG</option>
+                    <option value="Energy Regen">Energy Regen</option>
+                </select>
+                <select id="stat2" class="stat-select">
+                    <option value="">-- Stat 2 --</option>
+                    <option value="ATK%">ATK%</option>
+                    <option value="DEF%">DEF%</option>
+                    <option value="HP%">HP%</option>
+                    <option value="Crit Rate">Crit Rate</option>
+                    <option value="Crit DMG">Crit DMG</option>
+                    <option value="Energy Regen">Energy Regen</option>
+                </select>
+                <select id="stat3" class="stat-select">
+                    <option value="">-- Stat 3 --</option>
+                    <option value="ATK%">ATK%</option>
+                    <option value="DEF%">DEF%</option>
+                    <option value="HP%">HP%</option>
+                    <option value="Crit Rate">Crit Rate</option>
+                    <option value="Crit DMG">Crit DMG</option>
+                    <option value="Energy Regen">Energy Regen</option>
+                </select>
+            </div>
+            <button class="check-btn" onclick="checkEssence()">Check Weapons</button>
+            <div id="essence-result" style="margin-top: 20px; font-weight: bold; font-size: 1.1em;"></div>
+        </div>
     </div>
 </div>
 
 <script>
-    // --- Navigation & UI ---
+    // ==========================================
+    // 1. NAVIGATION & INITIALIZATION
+    // ==========================================
     function switchTab(tabId) {
         document.querySelectorAll('.app-view').forEach(v => v.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -101,38 +141,20 @@
         event.currentTarget.classList.add('active');
     }
 
-    function showNextYear(btn) {
-        let targetYear = btn.getAttribute('data-next-year');
-        let card = btn.closest('.card');
-        card.querySelectorAll('.year-' + targetYear).forEach(row => {
-            row.style.removeProperty('display');
-            row.classList.remove('hidden-year');
-        });
-        
-        let nextHidden = card.querySelector('tr.hidden-year');
-        if (nextHidden) {
-            let nextYear = nextHidden.className.match(/year-(\d+)/)[1];
-            let count = card.querySelectorAll('.year-' + nextYear).length;
-            btn.setAttribute('data-next-year', nextYear);
-            btn.innerHTML = `Show ${nextYear} (${count} items) ▼`;
-        } else {
-            btn.style.display = 'none';
+    // Load saved data when you open the website
+    window.onload = () => {
+        const savedHSR = localStorage.getItem('hsr_saved_data');
+        if (savedHSR) {
+            try {
+                let data = JSON.parse(savedHSR);
+                buildHSR(data);
+            } catch (err) { console.error("Corrupt local storage data."); }
         }
-    }
+    };
 
-    function toggleFourStars(btn) {
-        let tbody = btn.closest('.card').querySelector('tbody');
-        tbody.classList.toggle('hide-4stars');
-        if (tbody.classList.contains('hide-4stars')) {
-            btn.innerHTML = 'Show 4★ Watchlist';
-            btn.classList.remove('active');
-        } else {
-            btn.innerHTML = 'Hide 4★ Watchlist';
-            btn.classList.add('active');
-        }
-    }
-
-    // --- File Drag & Drop ---
+    // ==========================================
+    // 2. FILE DRAG & DROP
+    // ==========================================
     const dropZone = document.getElementById('drop-zone');
     ['dragover', 'dragleave', 'drop'].forEach(evt => dropZone.addEventListener(evt, e => e.preventDefault()));
     dropZone.addEventListener('dragover', () => dropZone.classList.add('dragover'));
@@ -145,18 +167,78 @@
             if (file.name.endsWith('.json')) {
                 let reader = new FileReader();
                 reader.onload = e => {
+                    let data;
+                    // Fix 1: Separate JSON parse from the build execution
                     try {
-                        let data = JSON.parse(e.target.result);
-                        if(file.name.startsWith('hsr_')) { buildHSR(data); switchTab('hsr-view'); }
-                        else if(file.name.startsWith('endfield_')) { switchTab('endfield-view'); } // Endfield next!
-                    } catch (err) { alert(`Error parsing JSON file: ${file.name}. Is it empty?`); }
+                        data = JSON.parse(e.target.result);
+                    } catch (err) { 
+                        alert(`Error parsing JSON file: ${file.name}. Ensure it is not empty or corrupt.`);
+                        return;
+                    }
+                    
+                    // Fix 2: Wrap Builder in its own try/catch and Save to Memory
+                    try {
+                        if(file.name.startsWith('hsr_')) { 
+                            localStorage.setItem('hsr_saved_data', JSON.stringify(data)); // SAVE IT!
+                            buildHSR(data); 
+                            switchTab('hsr-view'); 
+                        } else if(file.name.startsWith('endfield_')) { 
+                            switchTab('endfield-view'); 
+                        }
+                    } catch (err) {
+                        console.error(err);
+                        alert(`Successfully read file, but failed to build the dashboard. Check console for details.`);
+                    }
                 };
                 reader.readAsText(file);
             }
         }
     }
 
-    // --- HSR Analytics Engine ---
+    // ==========================================
+    // 3. ENDFIELD ESSENCE CHECKER LOGIC
+    // ==========================================
+    
+    // MANUAL DATABASE: Add/Edit weapons and their required 3 stats here!
+    // Make sure the spelling matches the dropdown menu options perfectly.
+    const ENDFIELD_WEAPONS = [
+        { name: "Wolfsfang (Prototype)", stats: ["ATK%", "Crit Rate", "Crit DMG"] },
+        { name: "Guardian's Vow", stats: ["DEF%", "HP%", "Energy Regen"] },
+        { name: "Example Duplicate Stat Weapon", stats: ["ATK%", "ATK%", "Crit Rate"] }
+    ];
+
+    function checkEssence() {
+        let s1 = document.getElementById('stat1').value;
+        let s2 = document.getElementById('stat2').value;
+        let s3 = document.getElementById('stat3').value;
+        let resultDiv = document.getElementById('essence-result');
+
+        if (!s1 || !s2 || !s3) {
+            resultDiv.innerHTML = "<span style='color: #f85149;'>Please select all 3 stats!</span>";
+            return;
+        }
+
+        // Sort selected stats alphabetically so order doesn't matter
+        let selectedStats = [s1, s2, s3].sort().join(',');
+        let matchingWeapons = [];
+
+        ENDFIELD_WEAPONS.forEach(weapon => {
+            let weaponStats = [...weapon.stats].sort().join(',');
+            if (selectedStats === weaponStats) {
+                matchingWeapons.push(weapon.name);
+            }
+        });
+
+        if (matchingWeapons.length > 0) {
+            resultDiv.innerHTML = `<span style="color: #3fb950;">✅ MATCH FOUND! Save this essence for: <br>• ${matchingWeapons.join('<br>• ')}</span>`;
+        } else {
+            resultDiv.innerHTML = `<span style="color: var(--text-muted);">❌ No weapons currently use this exact combination. Safe to scrap or reroll.</span>`;
+        }
+    }
+
+    // ==========================================
+    // 4. HSR DASHBOARD ENGINE
+    // ==========================================
     const HSR_CONFIG = {
         CHAR_HARD: 90, CHAR_SOFT: 74, LC_HARD: 80, LC_SOFT: 66,
         STD_CHARS: ["Himeko", "Welt", "Bronya", "Gepard", "Clara", "Yanqing", "Bailu", "Blade", "Seele", "Fu Xuan"],
@@ -174,14 +256,38 @@
         return ["HARD PITY 💀", "hard"];
     }
 
+    function showNextYear(btn) {
+        let targetYear = btn.getAttribute('data-next-year');
+        let card = btn.closest('.card');
+        card.querySelectorAll('.year-' + targetYear).forEach(row => { row.style.removeProperty('display'); row.classList.remove('hidden-year'); });
+        let nextHidden = card.querySelector('tr.hidden-year');
+        if (nextHidden) {
+            let nextYear = nextHidden.className.match(/year-(\d+)/)[1];
+            let count = card.querySelectorAll('.year-' + nextYear).length;
+            btn.setAttribute('data-next-year', nextYear);
+            btn.innerHTML = `Show ${nextYear} (${count} items) ▼`;
+        } else { btn.style.display = 'none'; }
+    }
+
+    function toggleFourStars(btn) {
+        let tbody = btn.closest('.card').querySelector('tbody');
+        tbody.classList.toggle('hide-4stars');
+        if (tbody.classList.contains('hide-4stars')) {
+            btn.innerHTML = 'Show 4★ Watchlist'; btn.classList.remove('active');
+        } else {
+            btn.innerHTML = 'Hide 4★ Watchlist'; btn.classList.add('active');
+        }
+    }
+
     function buildHSR(data) {
         let banners = { '11': [], '12': [], '1': [], '21': [], '22': [] };
-        data.forEach(item => { if(banners[item.gacha_type]) banners[item.gacha_type].push(item); });
+        // Fix for undefined gacha types breaking the loop
+        data.forEach(item => { if(item.gacha_type && banners[item.gacha_type]) banners[item.gacha_type].push(item); });
 
         let html = "<div class='grid'>";
         const renderCard = (code, name) => {
             let items = banners[code];
-            if (!items.length) return "";
+            if (!items || !items.length) return "";
             
             items.sort((a, b) => parseInt(a.id || 0) - parseInt(b.id || 0));
             
@@ -214,7 +320,9 @@
                         status = "4-STAR"; statusClass = "badge badge-4star"; has4Star = true;
                     }
                     
-                    history.push({ name: item.name, pity: pity, status: status, class: statusClass, date: item.time.split(' ')[0], is_win: isWin, rank: item.rank_type });
+                    // Added fallback if 'time' is missing
+                    let dateStr = item.time ? item.time.split(' ')[0] : "Unknown";
+                    history.push({ name: item.name, pity: pity, status: status, class: statusClass, date: dateStr, is_win: isWin, rank: item.rank_type });
                     if (is5Star) pity = 0;
                 }
             });
