@@ -1,4 +1,4 @@
-# 🌠 Astral Gacha Hub
+# 🌠 Gacha Hub
 A completely private, client-side web application for tracking gacha pull history.
 
 ## Features
