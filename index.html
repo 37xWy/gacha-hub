@@ -77,10 +77,12 @@
         </div>
     </div>
 
-    <div id="drop-zone" onclick="document.getElementById('file-input').click()">
-        <h3>Drag & Drop JSON files here (or click to browse)</h3>
-        <p>Your data is saved locally in your browser automatically.</p>
-        <input type="file" id="file-input" style="display: none;" accept=".json" multiple>
+    <div id="drop-zone-container">
+        <div id="drop-zone" onclick="document.getElementById('file-input').click()">
+            <h3>Drag & Drop JSON files here (or click to browse)</h3>
+            <p>Your data is saved locally in your browser automatically.</p>
+            <input type="file" id="file-input" style="display: none;" accept=".json" multiple>
+        </div>
     </div>
 
     <div id="hsr-view" class="app-view active">
@@ -94,11 +96,11 @@
     <div id="essence-view" class="app-view">
         <h2>Endfield Essence Matcher</h2>
         <div class="essence-box">
-            <p>Select the 3 stats rolled on your essence:</p>
+            <p>Select the 3 stats rolled on your essence, exactly in order of their category:</p>
             <div style="display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap;">
-                <select id="stat1" class="stat-select"><option value="">-- Stat 1 --</option></select>
-                <select id="stat2" class="stat-select"><option value="">-- Stat 2 --</option></select>
-                <select id="stat3" class="stat-select"><option value="">-- Stat 3 --</option></select>
+                <select id="stat1" class="stat-select"><option value="">-- Category 1 --</option></select>
+                <select id="stat2" class="stat-select"><option value="">-- Category 2 --</option></select>
+                <select id="stat3" class="stat-select"><option value="">-- Category 3 --</option></select>
             </div>
             <button class="check-btn" onclick="checkEssence()">Check Weapons</button>
             <button onclick="clearEssence()" style="background: transparent; border: 1px solid var(--border-color); color: var(--text-muted); padding: 10px 20px; border-radius: 4px; cursor: pointer; margin-left: 10px;">Clear</button>
@@ -116,16 +118,20 @@
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         
         document.getElementById(tabId).classList.add('active');
-        
-        // Fix: Use CSS selector to find the correct button, allowing programmatic switching
         const activeBtn = document.querySelector(`button[onclick="switchTab('${tabId}')"]`);
         if (activeBtn) activeBtn.classList.add('active');
+
+        // Toggle Drag and Drop zone visibility
+        const dropZone = document.getElementById('drop-zone-container');
+        if (tabId === 'essence-view') {
+            dropZone.style.display = 'none';
+        } else {
+            dropZone.style.display = 'block';
+        }
     }
 
-    // Load saved data when you open the website
     window.onload = () => {
-        initEssenceDropdowns(); // Populate the Arknights dropdowns
-        
+        initEssenceDropdowns(); 
         const savedHSR = localStorage.getItem('hsr_saved_data');
         if (savedHSR) {
             try {
@@ -180,34 +186,36 @@
     // 3. ENDFIELD ESSENCE CHECKER LOGIC
     // ==========================================
     
-    // MANUAL DATABASE: Add/Edit weapons and their required 3 stats here!
+    // MANUAL DATABASE
     const ENDFIELD_WEAPONS = [
-        { name: "Exemplar", stats: ["Main Attribute Boost", "Attack Boost", "Suppression"] }, 
+        { name: "Exemplar", stats: ["Main Attribute Boost", "Attack Boost", "Suppression"] },
         { name: "Former Finery", stats: ["Will", "HP Boost", "Efficacy"] }
     ];
 
-    // Dynamically populates the 3 dropdowns based on the ENDFIELD_WEAPONS database
     function initEssenceDropdowns() {
-        let uniqueStats = new Set();
+        let cat1 = new Set(), cat2 = new Set(), cat3 = new Set();
         
-        // Extract every stat from every weapon
+        // Extract stats strictly by their slot index
         ENDFIELD_WEAPONS.forEach(weapon => {
-            weapon.stats.forEach(stat => uniqueStats.add(stat));
+            if (weapon.stats[0]) cat1.add(weapon.stats[0]);
+            if (weapon.stats[1]) cat2.add(weapon.stats[1]);
+            if (weapon.stats[2]) cat3.add(weapon.stats[2]);
         });
         
-        // Sort them alphabetically for a clean UI
-        let sortedStats = Array.from(uniqueStats).sort();
-        
-        // Inject into the HTML selects
-        ['stat1', 'stat2', 'stat3'].forEach(id => {
-            let selectElement = document.getElementById(id);
-            sortedStats.forEach(stat => {
+        const populateSelect = (elementId, statSet, defaultText) => {
+            let selectElement = document.getElementById(elementId);
+            selectElement.innerHTML = `<option value="">-- ${defaultText} --</option>`;
+            
+            Array.from(statSet).sort().forEach(stat => {
                 let option = document.createElement("option");
-                option.value = stat;
-                option.text = stat;
+                option.value = stat; option.text = stat;
                 selectElement.appendChild(option);
             });
-        });
+        };
+
+        populateSelect('stat1', cat1, 'Category 1');
+        populateSelect('stat2', cat2, 'Category 2');
+        populateSelect('stat3', cat3, 'Category 3');
     }
 
     function checkEssence() {
@@ -217,25 +225,21 @@
         let resultDiv = document.getElementById('essence-result');
 
         if (!s1 || !s2 || !s3) {
-            resultDiv.innerHTML = "<span style='color: #f85149;'>Please select all 3 stats!</span>";
+            resultDiv.innerHTML = "<span style='color: #f85149;'>Please select a stat for all 3 categories!</span>";
             return;
         }
 
-        // Sort selected stats alphabetically so order doesn't matter
-        let selectedStats = [s1, s2, s3].sort().join(',');
-        let matchingWeapons = [];
-
-        ENDFIELD_WEAPONS.forEach(weapon => {
-            let weaponStats = [...weapon.stats].sort().join(',');
-            if (selectedStats === weaponStats) {
-                matchingWeapons.push(weapon.name);
-            }
-        });
+        // Strict ordered matching
+        let matchingWeapons = ENDFIELD_WEAPONS.filter(weapon => 
+            weapon.stats[0] === s1 && 
+            weapon.stats[1] === s2 && 
+            weapon.stats[2] === s3
+        ).map(weapon => weapon.name);
 
         if (matchingWeapons.length > 0) {
             resultDiv.innerHTML = `<span style="color: #3fb950;">✅ MATCH FOUND! Save this essence for: <br>• ${matchingWeapons.join('<br>• ')}</span>`;
         } else {
-            resultDiv.innerHTML = `<span style="color: var(--text-muted);">❌ No weapons currently use this exact combination. Safe to scrap or reroll.</span>`;
+            resultDiv.innerHTML = `<span style="color: var(--text-muted);">❌ No weapons use this exact combination in this order. Safe to scrap or reroll.</span>`;
         }
     }
     
