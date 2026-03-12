@@ -3,101 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gacha Hub | HSR & Endfield</title>
+    <title>Astral Gacha Hub</title>
     <style>
         :root {
-            --bg-dark: #0d1117;
-            --panel-bg: #161b22;
-            --border-color: #30363d;
-            --text-main: #c9d1d9;
-            --text-muted: #8b949e;
-            --accent: #58a6ff;
-            --accent-hover: #1f6feb;
+            --bg-dark: #0d1117; --panel-bg: #161b22; --border-color: #30363d;
+            --text-main: #c9d1d9; --text-muted: #8b949e; --accent: #58a6ff;
         }
+        body { background-color: var(--bg-dark); color: var(--text-main); font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        
+        /* Navigation & Drag Zone */
+        .nav-header { border-bottom: 2px solid var(--border-color); padding-bottom: 15px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .nav-tabs button { background: transparent; color: var(--text-muted); border: none; font-size: 16px; padding: 10px 15px; cursor: pointer; border-bottom: 2px solid transparent; transition: 0.2s; }
+        .nav-tabs button:hover { color: var(--text-main); }
+        .nav-tabs button.active { color: var(--accent); border-bottom: 2px solid var(--accent); font-weight: bold; }
+        
+        #drop-zone { background: var(--panel-bg); border: 2px dashed var(--border-color); border-radius: 8px; padding: 40px; text-align: center; color: var(--text-muted); margin-bottom: 20px; transition: 0.3s; cursor: pointer;}
+        #drop-zone.dragover { border-color: var(--accent); background: rgba(88, 166, 255, 0.1); color: var(--accent); }
+        .app-view { display: none; } .app-view.active { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        body {
-            background-color: var(--bg-dark);
-            color: var(--text-main);
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            margin: 0;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        /* Top Navigation */
-        .nav-header {
-            border-bottom: 2px solid var(--border-color);
-            padding-bottom: 15px;
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .nav-tabs button {
-            background: transparent;
-            color: var(--text-muted);
-            border: none;
-            font-size: 16px;
-            padding: 10px 15px;
-            cursor: pointer;
-            border-bottom: 2px solid transparent;
-            transition: 0.2s;
-        }
-
-        .nav-tabs button:hover {
-            color: var(--text-main);
-        }
-
-        .nav-tabs button.active {
-            color: var(--accent);
-            border-bottom: 2px solid var(--accent);
-            font-weight: bold;
-        }
-
-        /* Drag & Drop Zone */
-        #drop-zone {
-            background: var(--panel-bg);
-            border: 2px dashed var(--border-color);
-            border-radius: 8px;
-            padding: 40px;
-            text-align: center;
-            color: var(--text-muted);
-            margin-bottom: 20px;
-            transition: all 0.3s ease;
-        }
-
-        #drop-zone.dragover {
-            border-color: var(--accent);
-            background: rgba(88, 166, 255, 0.1);
-            color: var(--accent);
-        }
-
-        /* Dynamic Content Area */
-        .app-view {
-            display: none;
-        }
-
-        .app-view.active {
-            display: block;
-            animation: fadeIn 0.3s ease-in;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(5px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        /* HSR Dashboard Styles (Imported from V13) */
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(500px, 1fr)); gap: 30px; margin-top: 20px; }
+        .card { background-color: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.5); display: flex; flex-direction: column; }
+        .card-header { display: flex; justify-content: space-between; margin-bottom: 15px; }
+        .banner-name { font-weight: bold; font-size: 1.2em; color: #f0f6fc; }
+        .stat-row { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 0.9em; }
+        .progress-container { background-color: #21262d; height: 24px; border-radius: 12px; overflow: hidden; margin: 15px 0; position: relative; }
+        .progress-bar { height: 100%; transition: width 0.5s; background: linear-gradient(90deg, #238636, #e3b341, #da3633); } 
+        .progress-text { position: absolute; width: 100%; text-align: center; top: 2px; font-weight: bold; text-shadow: 1px 1px 2px black; color: white; }
+        .fifty-box { background: rgba(31, 111, 235, 0.1); border: 1px solid rgba(31, 111, 235, 0.3); padding: 10px; border-radius: 6px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .fifty-title { font-size: 0.8em; color: var(--accent); font-weight: bold; text-transform: uppercase; }
+        .fifty-val { font-weight: bold; font-size: 1em; }
+        
+        table { width: 100%; border-collapse: collapse; font-size: 0.85em; }
+        th { text-align: left; color: var(--text-muted); border-bottom: 1px solid var(--border-color); padding: 10px 8px; background: #21262d; }
+        td { padding: 8px; border-bottom: 1px solid #21262d; vertical-align: middle; }
+        .name-cell { font-weight: bold; font-size: 1.05em; }
+        .gold-text { color: #e3b341; } .purple-text { color: #a371f7; }
+        
+        .badge { padding: 3px 8px; border-radius: 4px; font-size: 0.85em; font-weight: bold; display: inline-block; white-space: nowrap; }
+        .badge-god { background: rgba(163, 113, 247, 0.2); color: #a371f7; border: 1px solid #a371f7; }
+        .badge-lucky { background: rgba(63, 185, 80, 0.2); color: #3fb950; border: 1px solid rgba(63, 185, 80, 0.4); }
+        .badge-early { background: rgba(88, 166, 255, 0.2); color: var(--accent); border: 1px solid rgba(88, 166, 255, 0.4); }
+        .badge-soft { background: rgba(210, 153, 34, 0.2); color: #d29922; border: 1px solid rgba(210, 153, 34, 0.4); }
+        .badge-hard { background: rgba(248, 81, 73, 0.2); color: #f85149; border: 1px solid rgba(248, 81, 73, 0.4); }
+        .badge-4star { border: 1px solid var(--border-color); color: var(--text-muted); font-weight: normal; }
+        .tag-win { margin-left: 6px; font-size: 0.75em; border: 1px solid #3fb950; color: #3fb950; padding: 1px 4px; border-radius: 3px; }
+        .tag-loss { margin-left: 6px; font-size: 0.75em; border: 1px solid #f85149; color: #f85149; padding: 1px 4px; border-radius: 3px; }
+        
+        .show-year-btn { display: block; width: 100%; background: #21262d; border: 1px dashed var(--border-color); color: var(--text-muted); padding: 8px; margin-top: 10px; cursor: pointer; border-radius: 4px; }
+        .show-year-btn:hover { background: var(--border-color); color: #fff; }
+        .control-bar { text-align: right; margin-bottom: 5px; }
+        .toggle-btn { background: none; border: 1px solid var(--border-color); color: var(--text-muted); font-size: 0.8em; padding: 4px 8px; border-radius: 4px; cursor: pointer; }
+        .toggle-btn.active { background: rgba(163, 113, 247, 0.2); border-color: #a371f7; color: #a371f7; }
+        .hide-4stars .row-4star { display: none !important; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="nav-header">
-        <h1 style="margin: 0; color: var(--accent);">Gacha Hub</h1>
+        <h1 style="margin: 0; color: var(--accent);">Astral Gacha Hub</h1>
         <div class="nav-tabs">
             <button class="tab-btn active" onclick="switchTab('hsr-view')">HSR Dashboard</button>
             <button class="tab-btn" onclick="switchTab('endfield-view')">Endfield Dashboard</button>
@@ -105,98 +72,217 @@
         </div>
     </div>
 
-    <div id="drop-zone">
-        <h3>Drag & Drop JSON files here</h3>
+    <div id="drop-zone" onclick="document.getElementById('file-input').click()">
+        <h3>Drag & Drop JSON files here (or click to browse)</h3>
         <p>Supports hsr_*.json and endfield_*.json</p>
         <input type="file" id="file-input" style="display: none;" accept=".json" multiple>
-        <button onclick="document.getElementById('file-input').click()" style="padding: 8px 16px; background: var(--border-color); color: white; border: none; border-radius: 4px; cursor: pointer; margin-top: 10px;">Or Click to Browse</button>
     </div>
 
     <div id="hsr-view" class="app-view active">
-        <h2>Honkai: Star Rail</h2>
-        <div id="hsr-content"><p style="color: var(--text-muted);">Awaiting data...</p></div>
+        <div id="hsr-content"><p style="color: var(--text-muted); text-align: center;">Awaiting HSR data...</p></div>
     </div>
 
     <div id="endfield-view" class="app-view">
-        <h2>Arknights: Endfield</h2>
-        <div id="endfield-content"><p style="color: var(--text-muted);">Awaiting data...</p></div>
+        <div id="endfield-content"><p style="color: var(--text-muted); text-align: center;">Awaiting Endfield data...</p></div>
     </div>
 
     <div id="essence-view" class="app-view">
         <h2>Essence Checker Tool</h2>
-        <p>Select your 3 stats to find matching weapons.</p>
-        </div>
+        <p style="color: var(--text-muted);">Data extraction pending...</p>
+    </div>
 </div>
 
 <script>
-    // --- Navigation Logic ---
+    // --- Navigation & UI ---
     function switchTab(tabId) {
-        // Hide all views
-        document.querySelectorAll('.app-view').forEach(view => {
-            view.classList.remove('active');
-        });
-        // Deactivate all buttons
-        document.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.classList.remove('active');
-        });
-        
-        // Activate target
+        document.querySelectorAll('.app-view').forEach(v => v.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.getElementById(tabId).classList.add('active');
         event.currentTarget.classList.add('active');
     }
 
-    // --- Drag and Drop Logic ---
+    function showNextYear(btn) {
+        let targetYear = btn.getAttribute('data-next-year');
+        let card = btn.closest('.card');
+        card.querySelectorAll('.year-' + targetYear).forEach(row => {
+            row.style.removeProperty('display');
+            row.classList.remove('hidden-year');
+        });
+        
+        let nextHidden = card.querySelector('tr.hidden-year');
+        if (nextHidden) {
+            let nextYear = nextHidden.className.match(/year-(\d+)/)[1];
+            let count = card.querySelectorAll('.year-' + nextYear).length;
+            btn.setAttribute('data-next-year', nextYear);
+            btn.innerHTML = `Show ${nextYear} (${count} items) ▼`;
+        } else {
+            btn.style.display = 'none';
+        }
+    }
+
+    function toggleFourStars(btn) {
+        let tbody = btn.closest('.card').querySelector('tbody');
+        tbody.classList.toggle('hide-4stars');
+        if (tbody.classList.contains('hide-4stars')) {
+            btn.innerHTML = 'Show 4★ Watchlist';
+            btn.classList.remove('active');
+        } else {
+            btn.innerHTML = 'Hide 4★ Watchlist';
+            btn.classList.add('active');
+        }
+    }
+
+    // --- File Drag & Drop ---
     const dropZone = document.getElementById('drop-zone');
-    const fileInput = document.getElementById('file-input');
-
-    dropZone.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        dropZone.classList.add('dragover');
-    });
-
-    dropZone.addEventListener('dragleave', () => {
-        dropZone.classList.remove('dragover');
-    });
-
-    dropZone.addEventListener('drop', (e) => {
-        e.preventDefault();
-        dropZone.classList.remove('dragover');
-        handleFiles(e.dataTransfer.files);
-    });
-
-    fileInput.addEventListener('change', (e) => {
-        handleFiles(e.target.files);
-    });
+    ['dragover', 'dragleave', 'drop'].forEach(evt => dropZone.addEventListener(evt, e => e.preventDefault()));
+    dropZone.addEventListener('dragover', () => dropZone.classList.add('dragover'));
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+    dropZone.addEventListener('drop', e => { dropZone.classList.remove('dragover'); handleFiles(e.dataTransfer.files); });
+    document.getElementById('file-input').addEventListener('change', e => handleFiles(e.target.files));
 
     function handleFiles(files) {
         for (let file of files) {
             if (file.name.endsWith('.json')) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
+                let reader = new FileReader();
+                reader.onload = e => {
                     try {
-                        const data = JSON.parse(e.target.result);
-                        processFile(file.name, data);
-                    } catch (error) {
-                        alert("Error parsing JSON file: " + file.name);
-                    }
+                        let data = JSON.parse(e.target.result);
+                        if(file.name.startsWith('hsr_')) { buildHSR(data); switchTab('hsr-view'); }
+                        else if(file.name.startsWith('endfield_')) { switchTab('endfield-view'); } // Endfield next!
+                    } catch (err) { alert(`Error parsing JSON file: ${file.name}. Is it empty?`); }
                 };
                 reader.readAsText(file);
             }
         }
     }
 
-    function processFile(filename, data) {
-        console.log("Loaded:", filename);
-        // Next step: Route data to the correct dashboard based on filename!
-        if (filename.startsWith('hsr_')) {
-            document.getElementById('hsr-content').innerHTML = `<p style="color: #3fb950;">Successfully loaded ${filename} with ${data.length} records!</p>`;
-            switchTab('hsr-view'); // Auto-switch to HSR tab
-        } else if (filename.startsWith('endfield_')) {
-            document.getElementById('endfield-content').innerHTML = `<p style="color: #3fb950;">Successfully loaded ${filename} with ${data.length} records!</p>`;
-            switchTab('endfield-view'); // Auto-switch to Endfield tab
-        } else {
-            alert("Unrecognized file type. Please use hsr_*.json or endfield_*.json");
-        }
+    // --- HSR Analytics Engine ---
+    const HSR_CONFIG = {
+        CHAR_HARD: 90, CHAR_SOFT: 74, LC_HARD: 80, LC_SOFT: 66,
+        STD_CHARS: ["Himeko", "Welt", "Bronya", "Gepard", "Clara", "Yanqing", "Bailu", "Blade", "Seele", "Fu Xuan"],
+        STD_LCS: ["Night on the Milky Way", "In the Name of the World", "But the Battle Isn't Over", "Moment of Victory", "Something Irreplaceable", "Sleep Like the Dead", "Time Waits for No One"],
+        WATCHLIST: ["Dance! Dance! Dance!"]
+    };
+
+    function getLuckStatus(pity, isLc) {
+        let soft = isLc ? HSR_CONFIG.LC_SOFT : HSR_CONFIG.CHAR_SOFT;
+        let hard = isLc ? HSR_CONFIG.LC_HARD : HSR_CONFIG.CHAR_HARD;
+        if (pity <= 10) return ["TOP 1% 💎", "god"];
+        if (pity <= 40) return ["LUCKY 🍀", "lucky"];
+        if (pity < soft) return ["EARLY ⚡", "early"];
+        if (pity < hard) return ["SOFT PITY ⚠️", "soft"];
+        return ["HARD PITY 💀", "hard"];
+    }
+
+    function buildHSR(data) {
+        let banners = { '11': [], '12': [], '1': [], '21': [], '22': [] };
+        data.forEach(item => { if(banners[item.gacha_type]) banners[item.gacha_type].push(item); });
+
+        let html = "<div class='grid'>";
+        const renderCard = (code, name) => {
+            let items = banners[code];
+            if (!items.length) return "";
+            
+            items.sort((a, b) => parseInt(a.id || 0) - parseInt(b.id || 0));
+            
+            let isLc = (code == '12' || code == '22');
+            let hardCap = isLc ? HSR_CONFIG.LC_HARD : HSR_CONFIG.CHAR_HARD;
+            let stdPool = isLc ? HSR_CONFIG.STD_LCS : HSR_CONFIG.STD_CHARS;
+            
+            let pity = 0, total = 0, wins = 0, losses = 0, streak = 0, has4Star = false;
+            let history = [];
+
+            items.forEach(item => {
+                total++; pity++;
+                let is5Star = item.rank_type == "5";
+                let isWatchlist = HSR_CONFIG.WATCHLIST.includes(item.name);
+                
+                if (is5Star || isWatchlist) {
+                    let status = "", statusClass = "", isWin = null;
+                    if (is5Star) {
+                        let luck = getLuckStatus(pity, isLc);
+                        status = luck[0]; statusClass = "badge badge-" + luck[1];
+                        
+                        if (['11', '12', '21', '22'].includes(code)) {
+                            if (stdPool.includes(item.name)) {
+                                isWin = false; losses++; streak = streak <= 0 ? streak - 1 : -1;
+                            } else {
+                                isWin = true; wins++; streak = streak >= 0 ? streak + 1 : 1;
+                            }
+                        }
+                    } else {
+                        status = "4-STAR"; statusClass = "badge badge-4star"; has4Star = true;
+                    }
+                    
+                    history.push({ name: item.name, pity: pity, status: status, class: statusClass, date: item.time.split(' ')[0], is_win: isWin, rank: item.rank_type });
+                    if (is5Star) pity = 0;
+                }
+            });
+
+            history.reverse();
+            let ssrOnly = history.filter(x => x.rank == '5');
+            let avgPity = ssrOnly.length ? (ssrOnly.reduce((a, b) => a + b.pity, 0) / ssrOnly.length).toFixed(1) : 0;
+            let percent = Math.min(100, (pity / hardCap) * 100);
+
+            let cardHtml = `
+            <div class="card">
+                <div class="card-header"><div class="banner-name">${name}</div><div style="color:var(--text-muted)">Total: ${total}</div></div>
+                <div class="stat-row"><span>Avg Pity: <strong>${avgPity}</strong></span><span>Current: <span class="gold-text">${pity}</span> / ${hardCap}</span></div>
+                <div class="progress-container"><div class="progress-bar" style="width: ${percent}%"></div><div class="progress-text">${pity}</div></div>`;
+
+            if (['11', '12', '21', '22'].includes(code) && (wins + losses > 0)) {
+                let rate = ((wins / (wins + losses)) * 100).toFixed(1);
+                let streakTxt = streak > 0 ? `${streak} Wins` : `${Math.abs(streak)} Losses`;
+                let streakCol = streak > 0 ? "#3fb950" : "#f85149";
+                cardHtml += `
+                <div class="fifty-box">
+                    <div><div class="fifty-title">Win Rate</div><div class="fifty-val" style="color:#f0f6fc">${rate}% <span style="font-weight:normal; color:var(--text-muted); font-size:0.8em">(${wins}W-${losses}L)</span></div></div>
+                    <div style="text-align:right"><div class="fifty-title">Streak</div><div class="fifty-val" style="color:${streakCol}">${streakTxt}</div></div>
+                </div>`;
+            }
+
+            if (history.length > 0) {
+                if (has4Star) cardHtml += `<div class="control-bar"><button class="toggle-btn active" onclick="toggleFourStars(this)">Hide 4★ Watchlist</button></div>`;
+                cardHtml += `<table><thead><tr><th>Entity</th><th>Pity</th><th>Status</th><th>Date</th></tr></thead><tbody>`;
+                
+                let years = {};
+                history.forEach(item => { let y = item.date.split('-')[0]; if(!years[y]) years[y] = []; years[y].push(item); });
+                let sortedYears = Object.keys(years).sort().reverse();
+                let currentYear = sortedYears[0];
+
+                sortedYears.forEach(year => {
+                    let isVisible = year === currentYear;
+                    let style = isVisible ? "" : 'style="display:none;"';
+                    let hiddenClass = isVisible ? "" : "hidden-year";
+                    
+                    years[year].forEach(item => {
+                        let nClass = item.rank == '5' ? "gold-text" : "purple-text";
+                        let rClass = item.rank == '4' ? "row-4star" : "";
+                        let wlBadge = item.is_win === true ? "<span class='tag-win'>WIN</span>" : item.is_win === false ? "<span class='tag-loss'>LOSS</span>" : "";
+                        
+                        cardHtml += `<tr class="year-${year} ${hiddenClass} ${rClass}" ${style}>
+                            <td class="name-cell ${nClass}">${item.name}${wlBadge}</td>
+                            <td style="font-weight:bold; color:#f0f6fc;">${item.pity}</td>
+                            <td><span class="${item.class}">${item.status}</span></td>
+                            <td style="color:var(--text-muted);">${item.date}</td>
+                        </tr>`;
+                    });
+                });
+                cardHtml += `</tbody></table>`;
+                if (sortedYears.length > 1) {
+                    let nextYear = sortedYears[1];
+                    cardHtml += `<button class='show-year-btn' data-next-year='${nextYear}' onclick='showNextYear(this)'>Show ${nextYear} (${years[nextYear].length} items) ▼</button>`;
+                }
+            } else { cardHtml += `<div style='text-align:center; padding:20px; color:var(--text-muted)'>No records found.</div>`; }
+            return cardHtml + "</div>";
+        };
+
+        html += renderCard('11', 'Character Event Warp');
+        html += renderCard('12', 'Light Cone Event Warp');
+        html += renderCard('1', 'Stellar Warp (Standard)');
+        html += renderCard('21', 'Collab Character Warp');
+        html += renderCard('22', 'Collab Light Cone Warp');
+        document.getElementById('hsr-content').innerHTML = html + "</div>";
     }
 </script>
 </body>
