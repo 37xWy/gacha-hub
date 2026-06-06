@@ -8,7 +8,7 @@
         :root {
             --bg-dark: #0d1117; --panel-bg: #161b22; --border-color: #30363d;
             --text-main: #c9d1d9; --text-muted: #8b949e; --accent: #58a6ff;
-            --ef-accent: #f2a900; /* Endfield Gold */
+            --ef-accent: #f2a900;
         }
         body { background-color: var(--bg-dark); color: var(--text-main); font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; }
         .container { max-width: 1200px; margin: 0 auto; }
@@ -24,17 +24,14 @@
         .app-view { display: none; } .app-view.active { display: block; animation: fadeIn 0.3s; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* Multi-Account Tabs */
         .uid-tabs { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
         .uid-btn { background: #21262d; color: var(--text-muted); border: 1px solid var(--border-color); padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px; transition: 0.2s; }
         .uid-btn:hover { background: var(--border-color); color: #fff; }
         .uid-btn.active { background: #1f6feb; color: #fff; border-color: #1f6feb; font-weight: bold; }
         
-        /* RESTORED CSS: Hides inactive accounts */
         .account-view { display: none; }
         .account-view.active { display: block; animation: fadeIn 0.3s; }
 
-        /* Universal Dashboard Styles */
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(500px, 1fr)); gap: 30px; margin-top: 20px; }
         .card { background-color: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.5); display: flex; flex-direction: column; overflow-x: auto; }
         .card-header { display: flex; justify-content: space-between; margin-bottom: 15px; }
@@ -81,21 +78,12 @@
 
         .flex-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 15px;}
 
-        /* Essence Tool Styles */
-        .essence-box { background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 20px; }
-        .dropdown-container { display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }
-        .stat-select { background: #21262d; color: white; border: 1px solid var(--border-color); padding: 10px; border-radius: 4px; font-size: 16px; outline: none; flex: 1; min-width: 150px; }
-        .check-btn { background: var(--accent); color: #0d1117; font-weight: bold; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; transition: 0.2s; }
-        .check-btn:hover { background: #1f6feb; color: white; }
-
         @media (max-width: 768px) {
             body { padding: 10px; }
             .grid { grid-template-columns: 1fr; }
-            .dropdown-container { flex-direction: column; }
-            .stat-select { width: 100%; }
             .nav-tabs button { font-size: 14px; padding: 8px 10px; flex: 1; text-align: center; }
             .nav-header h1 { font-size: 1.5em; text-align: center; width: 100%; }
-            .check-btn, .clear-btn { width: 100%; margin-left: 0 !important; margin-bottom: 10px; }
+            .clear-btn { width: 100%; margin-left: 0 !important; margin-bottom: 10px; }
             .fifty-box { flex-direction: column; text-align: center; gap: 10px; }
             .fifty-box > div { width: 100%; text-align: center !important; }
         }
@@ -109,7 +97,6 @@
         <div class="nav-tabs">
             <button class="tab-btn active" onclick="switchTab('hsr-view')">HSR Dashboard</button>
             <button class="tab-btn" onclick="switchTab('endfield-view')">Endfield Dashboard</button>
-            <button class="tab-btn" onclick="switchTab('essence-view')">Essence Checker</button>
         </div>
     </div>
 
@@ -137,21 +124,6 @@
         </div>
         <div id="endfield-content"><p style="color: var(--text-muted); text-align: center; padding: 20px;">No local Endfield data found. Upload characters/weapons JSON.</p></div>
     </div>
-
-    <div id="essence-view" class="app-view">
-        <h2>Endfield Essence Matcher</h2>
-        <div class="essence-box">
-            <p>Select the 3 stats rolled on your essence, exactly in order of their category:</p>
-            <div class="dropdown-container">
-                <select id="stat1" class="stat-select"><option value="">-- Category 1 --</option></select>
-                <select id="stat2" class="stat-select"><option value="">-- Category 2 --</option></select>
-                <select id="stat3" class="stat-select"><option value="">-- Category 3 --</option></select>
-            </div>
-            <button class="check-btn" onclick="checkEssence()">Check Weapons</button>
-            <button onclick="clearEssence()" style="background: transparent; border: 1px solid var(--border-color); color: var(--text-muted); padding: 10px 20px; border-radius: 4px; cursor: pointer; margin-left: 10px;">Clear</button>
-            <div id="essence-result" style="margin-top: 20px; font-weight: bold; font-size: 1.1em; text-align: center;"></div>
-        </div>
-    </div>
 </div>
 
 <script>
@@ -165,12 +137,8 @@
         const activeBtn = document.querySelector(`button[onclick="switchTab('${tabId}')"]`);
         if (activeBtn) activeBtn.classList.add('active');
 
-        const dropZone = document.getElementById('drop-zone-container');
-        dropZone.style.display = (tabId === 'essence-view') ? 'none' : 'block';
-
         if (tabId === 'hsr-view') window.history.replaceState(null, null, ' '); 
         if (tabId === 'endfield-view') window.history.replaceState(null, null, '#endfield');
-        if (tabId === 'essence-view') window.history.replaceState(null, null, '#essence');
     }
 
     function switchUIDTab(uid) {
@@ -188,10 +156,8 @@
     }
 
     window.onload = () => {
-        initEssenceDropdowns(); 
         let hash = window.location.hash;
-        if (hash === '#essence') switchTab('essence-view');
-        else if (hash === '#endfield') switchTab('endfield-view');
+        if (hash === '#endfield') switchTab('endfield-view');
         else switchTab('hsr-view');
 
         const savedHSR = localStorage.getItem('hsr_accounts');
@@ -251,97 +217,7 @@
     }
 
     // ==========================================
-    // 3. ENDFIELD ESSENCE CHECKER LOGIC
-    // ==========================================
-    const ENDFIELD_WEAPONS = [
-        { name: "Eminent Repute", stats: ["Main Attribute", "Physical DMG", "Brutality"] },
-        { name: "Forgeborn Scathe", stats: ["Intellect", "Attack", "Twilight"] },
-        { name: "Grand Vision", stats: ["Agility", "Attack", "Infliction"] },
-        { name: "Never Rest", stats: ["Will", "Attack", "Flow"] },
-        { name: "Rapid Ascent", stats: ["Main Attribute", "Critical Rate", "Twilight"] },
-        { name: "Thermite Cutter", stats: ["Will", "Attack", "Flow"] },
-        { name: "Umbral Torch", stats: ["Intellect", "Heat DMG", "Infliction"] },
-        { name: "White Night Nova", stats: ["Main Attribute", "Arts Intensity", "Infliction"] },
-        { name: "Aspirant", stats: ["Agility", "Physical DMG", "Twilight"] },
-        { name: "Finchaser 3.0", stats: ["Strength", "Cryo DMG", "Suppression"] },
-        { name: "Fortmaker", stats: ["Intellect", "Ultimate Gain", "Inspiring"] },
-        { name: "OBJ Edge of Lightness", stats: ["Agility", "Attack", "Flow"] },
-        { name: "Sundering Steel", stats: ["Agility", "Physical DMG", "Combative"] },
-        { name: "Twelve Questions", stats: ["Agility", "Attack", "Infliction"] },
-        { name: "Exemplar", stats: ["Main Attribute", "Attack", "Suppression"] },
-        { name: "Former Finery", stats: ["Will", "HP", "Efficacy"] },
-        { name: "Khravengger", stats: ["Strength", "Attack", "Detonate"] },
-        { name: "Sundered Prince", stats: ["Strength", "Critical Rate", "Crusher"] },
-        { name: "Thunderberge", stats: ["Strength", "HP", "Medicant"] },
-        { name: "Ancient Canal", stats: ["Strength", "Arts Intensity", "Brutality"] },
-        { name: "Finishing Call", stats: ["Strength", "HP", "Medicant"] },
-        { name: "OBJ Heavy Burden", stats: ["Strength", "HP", "Efficacy"] },
-        { name: "Seeker of Dark Lung", stats: ["Strength", "Ultimate Gain", "Detonate"] },
-        { name: "JET", stats: ["Main Attribute", "Attack", "Suppression"] },
-        { name: "Mountain Bearer", stats: ["Agility", "Physical DMG", "Efficacy"] },
-        { name: "Valiant", stats: ["Agility", "Physical DMG", "Combative"] },
-        { name: "Chimeric Justice", stats: ["Strength", "Ultimate Gain", "Brutality"] },
-        { name: "Cohesive Traction", stats: ["Will", "Electric DMG", "Suppression"] },
-        { name: "OBJ Razorhorn", stats: ["Will", "Physical DMG", "Infliction"] },
-        { name: "Artzy Tyrannical", stats: ["Intellect", "Critical Rate", "Fracture"] },
-        { name: "Clannibal", stats: ["Main Attribute", "Arts DMG", "Infliction"] },
-        { name: "Navigator", stats: ["Intellect", "Cryo DMG", "Infliction"] },
-        { name: "Wedge", stats: ["Main Attribute", "Critical Rate", "Infliction"] },
-        { name: "OBJ Velocitous", stats: ["Agility", "Ultimate Gain", "Detonate"] },
-        { name: "Opus: The Living", stats: ["Agility", "Arts DMG", "Infliction"] },
-        { name: "Rational Farewell", stats: ["Strength", "Heat DMG", "Pursuit"] },
-        { name: "Chivalric Virtues", stats: ["Will", "HP", "Medicant"] },
-        { name: "Delivery Guaranteed", stats: ["Will", "Ultimate Gain", "Pursuit"] },
-        { name: "Detonation Unit", stats: ["Main Attribute", "Arts Intensity", "Detonate"] },
-        { name: "Dreams of the Starry Beach", stats: ["Intellect", "Treatment", "Infliction"] },
-        { name: "Oblivion", stats: ["Intellect", "Arts DMG", "Twilight"] },
-        { name: "Opus: Etch Figure", stats: ["Will", "Nature DMG", "Suppression"] },
-        { name: "Freedom to Proselytize", stats: ["Will", "Treatment", "Medicant"] },
-        { name: "Monaihe", stats: ["Will", "Ultimate Gain", "Inspiring"] },
-        { name: "OBJ Arts Identifier", stats: ["Intellect", "Arts Intensity", "Pursuit"] },
-        { name: "Stanza of Memorials", stats: ["Intellect", "Attack", "Twilight"] },
-        { name: "Wild Wanderer", stats: ["Intellect", "Electric DMG", "Infliction"] },
-        { name: "Brigand's Calling", stats: ["Agility", "Attack", "Detonate"] },
-        { name: "Lupine Scarlet", stats: ["Agility", "Critical Rate", "Fracture"] },
-        { name: "Home Longing", stats: ["Agility", "Cryo DMG", "Suppression"] },
-        { name: "Glorious Memory", stats: ["Agility", "Critical Rate", "Twilight"] }
-    ];
-
-    function initEssenceDropdowns() {
-        let cat1 = new Set(), cat2 = new Set(), cat3 = new Set();
-        ENDFIELD_WEAPONS.forEach(w => {
-            if (w.stats[0]) cat1.add(w.stats[0]);
-            if (w.stats[1]) cat2.add(w.stats[1]);
-            if (w.stats[2]) cat3.add(w.stats[2]);
-        });
-        const populateSelect = (elementId, statSet, defaultText) => {
-            let selectElement = document.getElementById(elementId);
-            selectElement.innerHTML = `<option value="">-- ${defaultText} --</option>`;
-            Array.from(statSet).sort().forEach(stat => {
-                let option = document.createElement("option"); option.value = stat; option.text = stat;
-                selectElement.appendChild(option);
-            });
-        };
-        populateSelect('stat1', cat1, 'Category 1'); populateSelect('stat2', cat2, 'Category 2'); populateSelect('stat3', cat3, 'Category 3');
-    }
-
-    function checkEssence() {
-        let s1 = document.getElementById('stat1').value, s2 = document.getElementById('stat2').value, s3 = document.getElementById('stat3').value;
-        let resultDiv = document.getElementById('essence-result');
-        if (!s1 || !s2 || !s3) { resultDiv.innerHTML = "<span style='color: #f85149;'>Please select a stat for all 3 categories!</span>"; return; }
-
-        let matchingWeapons = ENDFIELD_WEAPONS.filter(w => w.stats[0] === s1 && w.stats[1] === s2 && w.stats[2] === s3).map(w => w.name);
-        if (matchingWeapons.length > 0) resultDiv.innerHTML = `<span style="color: #3fb950;">✅ MATCH FOUND!<br><br>Save this essence for:<br>• ${matchingWeapons.join('<br>• ')}</span>`;
-        else resultDiv.innerHTML = `<span style="color: var(--text-muted);">❌ No weapons use this exact combination in this order. Safe to scrap or reroll.</span>`;
-    }
-    
-    function clearEssence() {
-        ['stat1', 'stat2', 'stat3'].forEach(id => document.getElementById(id).value = "");
-        document.getElementById('essence-result').innerHTML = "";
-    }
-
-    // ==========================================
-    // 4. ENDFIELD DASHBOARD ENGINE
+    // 3. ENDFIELD DASHBOARD ENGINE
     // ==========================================
     const EF_CONFIG = {
         CHAR_HARD: 80, WEAPON_HARD: 40,
@@ -491,65 +367,168 @@
     }
 
     // ==========================================
-    // 5. HSR DASHBOARD ENGINE
+    // 4. HSR DASHBOARD ENGINE
     // ==========================================
-    const HSR_CONFIG = { CHAR_HARD: 90, CHAR_SOFT: 74, LC_HARD: 80, LC_SOFT: 66, STD_CHARS: ["Himeko", "Welt", "Bronya", "Gepard", "Clara", "Yanqing", "Bailu", "Blade", "Seele", "Fu Xuan", "Yunli", "Argenti", "Silver Wolf"], STD_LCS: ["Night on the Milky Way", "In the Name of the World", "But the Battle Isn't Over", "Moment of Victory", "Something Irreplaceable", "Sleep Like the Dead", "Time Waits for No One"], WATCHLIST: ["Dance! Dance! Dance!"] };
-    function getLuckStatus(pity, isLc) { let soft = isLc ? HSR_CONFIG.LC_SOFT : HSR_CONFIG.CHAR_SOFT; let hard = isLc ? HSR_CONFIG.LC_HARD : HSR_CONFIG.CHAR_HARD; if (pity <= 10) return ["TOP 1% 💎", "god"]; if (pity <= 40) return ["LUCKY 🍀", "lucky"]; if (pity < soft) return ["EARLY ⚡", "early"]; if (pity < hard) return ["SOFT PITY ⚠️", "soft"]; return ["HARD PITY 💀", "hard"]; }
-    function showNextYear(btn) { let t = btn.getAttribute('data-next-year'); let c = btn.closest('.card'); c.querySelectorAll('.year-'+t).forEach(r => { r.style.removeProperty('display'); r.classList.remove('hidden-year'); }); let n = c.querySelector('tr.hidden-year'); if (n) { let ny = n.className.match(/year-(\d+)/)[1]; let ct = c.querySelectorAll('.year-'+ny).length; btn.setAttribute('data-next-year', ny); btn.innerHTML = `Show ${ny} (${ct} items) ▼`; } else btn.style.display = 'none'; }
-    function toggleFourStars(btn) { let tb = btn.closest('.card').querySelector('tbody'); tb.classList.toggle('hide-4stars'); if (tb.classList.contains('hide-4stars')) { btn.innerHTML = 'Show 4★ Watchlist'; btn.classList.remove('active'); } else { btn.innerHTML = 'Hide 4★ Watchlist'; btn.classList.add('active'); } }
+    const HSR_CONFIG = {
+        CHAR_HARD: 90, CHAR_SOFT: 74, LC_HARD: 80, LC_SOFT: 66,
+        STD_CHARS: ["Himeko", "Welt", "Bronya", "Gepard", "Clara", "Yanqing", "Bailu", "Blade", "Seele", "Fu Xuan"],
+        STD_LCS: ["Night on the Milky Way", "In the Name of the World", "But the Battle Isn't Over", "Moment of Victory", "Something Irreplaceable", "Sleep Like the Dead", "Time Waits for No One"],
+        WATCHLIST: ["Dance! Dance! Dance!"]
+    };
+
+    function getLuckStatus(pity, isLc) {
+        let soft = isLc ? HSR_CONFIG.LC_SOFT : HSR_CONFIG.CHAR_SOFT;
+        let hard = isLc ? HSR_CONFIG.LC_HARD : HSR_CONFIG.CHAR_HARD;
+        if (pity <= 10) return ["TOP 1% 💎", "god"];
+        if (pity <= 40) return ["LUCKY 🍀", "lucky"];
+        if (pity < soft) return ["EARLY ⚡", "early"];
+        if (pity < hard) return ["SOFT PITY ⚠️", "soft"];
+        return ["HARD PITY 💀", "hard"];
+    }
+
+    function showNextYear(btn) {
+        let targetYear = btn.getAttribute('data-next-year');
+        let card = btn.closest('.card');
+        card.querySelectorAll('.year-' + targetYear).forEach(row => { row.style.removeProperty('display'); row.classList.remove('hidden-year'); });
+        let nextHidden = card.querySelector('tr.hidden-year');
+        if (nextHidden) {
+            let nextYear = nextHidden.className.match(/year-(\d+)/)[1];
+            let count = card.querySelectorAll('.year-' + nextYear).length;
+            btn.setAttribute('data-next-year', nextYear); btn.innerHTML = `Show ${nextYear} (${count} items) ▼`;
+        } else { btn.style.display = 'none'; }
+    }
+
+    function toggleFourStars(btn) {
+        let tbody = btn.closest('.card').querySelector('tbody');
+        tbody.classList.toggle('hide-4stars');
+        if (tbody.classList.contains('hide-4stars')) { btn.innerHTML = 'Show 4★ Watchlist'; btn.classList.remove('active'); } 
+        else { btn.innerHTML = 'Hide 4★ Watchlist'; btn.classList.add('active'); }
+    }
 
     function buildHSR(accountsDict) {
         let uids = Object.keys(accountsDict).sort();
         if (uids.length === 0) return;
-        let html = `<div class="uid-tabs">`; let firstUid = uids[0];
-        uids.forEach(uid => { html += `<button id="btn-${uid}" class="uid-btn${uid === firstUid ? ' active':''}" onclick="switchUIDTab('${uid}')">UID: ${uid}</button>`; });
+
+        let html = `<div class="uid-tabs">`;
+        let firstUid = uids[0];
+        uids.forEach(uid => {
+            let active = (uid === firstUid) ? " active" : "";
+            html += `<button id="btn-${uid}" class="uid-btn${active}" onclick="switchUIDTab('${uid}')">UID: ${uid}</button>`;
+        });
         html += `</div>`;
+
         uids.forEach(uid => {
             let data = accountsDict[uid];
-            html += `<div id="acc-${uid}" class="account-view${uid === firstUid ? ' active':''}">`;
+            let active = (uid === firstUid) ? " active" : "";
+            html += `<div id="acc-${uid}" class="account-view${active}">`;
+            
             let banners = { '11': [], '12': [], '1': [], '21': [], '22': [] };
             data.forEach(item => { if(item.gacha_type && banners[item.gacha_type]) banners[item.gacha_type].push(item); });
+
             html += "<div class='grid'>";
+            
             const renderCard = (code, name) => {
-                let items = banners[code]; if (!items || !items.length) return "";
+                let items = banners[code];
+                if (!items || !items.length) return "";
+                
                 items.sort((a, b) => parseInt(a.id || 0) - parseInt(b.id || 0));
-                let isLc = (code == '12' || code == '22'); let hardCap = isLc ? HSR_CONFIG.LC_HARD : HSR_CONFIG.CHAR_HARD; let stdPool = isLc ? HSR_CONFIG.STD_LCS : HSR_CONFIG.STD_CHARS;
-                let pity = 0, total = 0, wins = 0, losses = 0, streak = 0, has4Star = false, history = [];
+                
+                let isLc = (code == '12' || code == '22');
+                let hardCap = isLc ? HSR_CONFIG.LC_HARD : HSR_CONFIG.CHAR_HARD;
+                let stdPool = isLc ? HSR_CONFIG.STD_LCS : HSR_CONFIG.STD_CHARS;
+                
+                let pity = 0, total = 0, wins = 0, losses = 0, streak = 0, has4Star = false;
+                let history = [];
+
                 items.forEach(item => {
-                    total++; pity++; let is5Star = item.rank_type == "5"; let isWatchlist = HSR_CONFIG.WATCHLIST.includes(item.name);
+                    total++; pity++;
+                    let is5Star = item.rank_type == "5";
+                    let isWatchlist = HSR_CONFIG.WATCHLIST.includes(item.name);
+                    
                     if (is5Star || isWatchlist) {
                         let status = "", statusClass = "", isWin = null;
                         if (is5Star) {
-                            let luck = getLuckStatus(pity, isLc); status = luck[0]; statusClass = "badge badge-" + luck[1];
-                            if (['11', '12', '21', '22'].includes(code)) { if (stdPool.includes(item.name)) { isWin = false; losses++; streak = streak <= 0 ? streak - 1 : -1; } else { isWin = true; wins++; streak = streak >= 0 ? streak + 1 : 1; } }
+                            let luck = getLuckStatus(pity, isLc);
+                            status = luck[0]; statusClass = "badge badge-" + luck[1];
+                            
+                            if (['11', '12', '21', '22'].includes(code)) {
+                                if (stdPool.includes(item.name)) { isWin = false; losses++; streak = streak <= 0 ? streak - 1 : -1; } 
+                                else { isWin = true; wins++; streak = streak >= 0 ? streak + 1 : 1; }
+                            }
                         } else { status = "4-STAR"; statusClass = "badge badge-4star"; has4Star = true; }
-                        let dateStr = item.time ? item.time.split(' ')[0] : "Unknown"; history.push({ name: item.name, pity: pity, status: status, class: statusClass, date: dateStr, is_win: isWin, rank: item.rank_type });
+                        
+                        let dateStr = item.time ? item.time.split(' ')[0] : "Unknown";
+                        history.push({ name: item.name, pity: pity, status: status, class: statusClass, date: dateStr, is_win: isWin, rank: item.rank_type });
                         if (is5Star) pity = 0;
                     }
                 });
-                history.reverse(); let ssrOnly = history.filter(x => x.rank == '5'); let avgPity = ssrOnly.length ? (ssrOnly.reduce((a, b) => a + b.pity, 0) / ssrOnly.length).toFixed(1) : 0; let percent = Math.min(100, (pity / hardCap) * 100);
-                let cardHtml = `<div class="card"><div class="card-header"><div class="banner-name">${name}</div><div style="color:var(--text-muted)">Total: ${total}</div></div><div class="stat-row"><span>Avg Pity: <strong>${avgPity}</strong></span><span>Current: <span class="gold-text">${pity}</span> / ${hardCap}</span></div><div class="progress-container"><div class="progress-bar" style="width: ${percent}%"></div><div class="progress-text">${pity}</div></div>`;
+
+                history.reverse();
+                let ssrOnly = history.filter(x => x.rank == '5');
+                let avgPity = ssrOnly.length ? (ssrOnly.reduce((a, b) => a + b.pity, 0) / ssrOnly.length).toFixed(1) : 0;
+                let percent = Math.min(100, (pity / hardCap) * 100);
+
+                let cardHtml = `
+                <div class="card">
+                    <div class="card-header"><div class="banner-name">${name}</div><div style="color:var(--text-muted)">Total: ${total}</div></div>
+                    <div class="stat-row"><span>Avg Pity: <strong>${avgPity}</strong></span><span>Current: <span class="gold-text">${pity}</span> / ${hardCap}</span></div>
+                    <div class="progress-container"><div class="progress-bar" style="width: ${percent}%"></div><div class="progress-text">${pity}</div></div>`;
+
                 if (['11', '12', '21', '22'].includes(code) && (wins + losses > 0)) {
-                    let rate = ((wins / (wins + losses)) * 100).toFixed(1); let streakTxt = streak > 0 ? `${streak} Wins` : `${Math.abs(streak)} Losses`; let streakCol = streak > 0 ? "#3fb950" : "#f85149";
-                    cardHtml += `<div class="fifty-box"><div><div class="fifty-title">Win Rate</div><div class="fifty-val" style="color:#f0f6fc">${rate}% <span style="font-weight:normal; color:var(--text-muted); font-size:0.8em">(${wins}W-${losses}L)</span></div></div><div><div class="fifty-title">Streak</div><div class="fifty-val" style="color:${streakCol}">${streakTxt}</div></div></div>`;
+                    let rate = ((wins / (wins + losses)) * 100).toFixed(1);
+                    let streakTxt = streak > 0 ? `${streak} Wins` : `${Math.abs(streak)} Losses`;
+                    let streakCol = streak > 0 ? "#3fb950" : "#f85149";
+                    cardHtml += `
+                    <div class="fifty-box">
+                        <div><div class="fifty-title">Win Rate</div><div class="fifty-val" style="color:#f0f6fc">${rate}% <span style="font-weight:normal; color:var(--text-muted); font-size:0.8em">(${wins}W-${losses}L)</span></div></div>
+                        <div><div class="fifty-title">Streak</div><div class="fifty-val" style="color:${streakCol}">${streakTxt}</div></div>
+                    </div>`;
                 }
+
                 if (history.length > 0) {
                     if (has4Star) cardHtml += `<div class="control-bar"><button class="toggle-btn active" onclick="toggleFourStars(this)">Hide 4★ Watchlist</button></div>`;
                     cardHtml += `<div style="overflow-x:auto;"><table><thead><tr><th>Entity</th><th>Pity</th><th>Status</th><th>Date</th></tr></thead><tbody>`;
-                    let years = {}; history.forEach(item => { let y = item.date.split('-')[0]; if(!years[y]) years[y] = []; years[y].push(item); }); let sortedYears = Object.keys(years).sort().reverse(); let currentYear = sortedYears[0];
+                    
+                    let years = {};
+                    history.forEach(item => { let y = item.date.split('-')[0]; if(!years[y]) years[y] = []; years[y].push(item); });
+                    let sortedYears = Object.keys(years).sort().reverse();
+                    let currentYear = sortedYears[0];
+
                     sortedYears.forEach(year => {
-                        let isVisible = year === currentYear; let style = isVisible ? "" : 'style="display:none;"'; let hiddenClass = isVisible ? "" : "hidden-year";
+                        let isVisible = year === currentYear;
+                        let style = isVisible ? "" : 'style="display:none;"';
+                        let hiddenClass = isVisible ? "" : "hidden-year";
+                        
                         years[year].forEach(item => {
-                            let nClass = item.rank == '5' ? "gold-text" : "purple-text"; let rClass = item.rank == '4' ? "row-4star" : ""; let wlBadge = item.is_win === true ? "<span class='tag-win'>WIN</span>" : item.is_win === false ? "<span class='tag-loss'>LOSS</span>" : "";
-                            cardHtml += `<tr class="year-${year} ${hiddenClass} ${rClass}" ${style}><td class="name-cell ${nClass}">${item.name}${wlBadge}</td><td style="font-weight:bold; color:#f0f6fc;">${item.pity}</td><td><span class="${item.class}">${item.status}</span></td><td style="color:var(--text-muted);">${item.date}</td></tr>`;
+                            let nClass = item.rank == '5' ? "gold-text" : "purple-text";
+                            let rClass = item.rank == '4' ? "row-4star" : "";
+                            let wlBadge = item.is_win === true ? "<span class='tag-win'>WIN</span>" : item.is_win === false ? "<span class='tag-loss'>LOSS</span>" : "";
+                            
+                            cardHtml += `<tr class="year-${year} ${hiddenClass} ${rClass}" ${style}>
+                                <td class="name-cell ${nClass}">${item.name}${wlBadge}</td>
+                                <td style="font-weight:bold; color:#f0f6fc;">${item.pity}</td>
+                                <td><span class="${item.class}">${item.status}</span></td>
+                                <td style="color:var(--text-muted);">${item.date}</td>
+                            </tr>`;
                         });
                     });
-                    cardHtml += `</tbody></table></div>`; if (sortedYears.length > 1) { let nextYear = sortedYears[1]; cardHtml += `<button class='show-year-btn' data-next-year='${nextYear}' onclick='showNextYear(this)'>Show ${nextYear} (${years[nextYear].length} items) ▼</button>`; }
-                } else cardHtml += `<div style='text-align:center; padding:20px; color:var(--text-muted)'>No records found.</div>`;
+                    cardHtml += `</tbody></table></div>`;
+                    if (sortedYears.length > 1) {
+                        let nextYear = sortedYears[1];
+                        cardHtml += `<button class='show-year-btn' data-next-year='${nextYear}' onclick='showNextYear(this)'>Show ${nextYear} (${years[nextYear].length} items) ▼</button>`;
+                    }
+                } else { cardHtml += `<div style='text-align:center; padding:20px; color:var(--text-muted)'>No records found.</div>`; }
                 return cardHtml + "</div>";
             };
-            html += renderCard('11', 'Character Event Warp') + renderCard('12', 'Light Cone Event Warp') + renderCard('1', 'Stellar Warp (Standard)') + renderCard('21', 'Collab Character Warp') + renderCard('22', 'Collab Light Cone Warp') + "</div></div>";
+
+            html += renderCard('11', 'Character Event Warp');
+            html += renderCard('12', 'Light Cone Event Warp');
+            html += renderCard('1', 'Stellar Warp (Standard)');
+            html += renderCard('21', 'Collab Character Warp');
+            html += renderCard('22', 'Collab Light Cone Warp');
+            html += "</div></div>";
         });
+
         document.getElementById('hsr-content').innerHTML = html;
     }
 </script>
