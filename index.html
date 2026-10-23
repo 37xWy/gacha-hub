@@ -3,229 +3,2468 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gacha Hub</title>
+    <title>Gacha Hub — Private Warp & Pull Visualizer</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌠</text></svg>">
     <style>
         :root {
-            --bg-dark: #0d1117; --panel-bg: #161b22; --border-color: #30363d;
-            --text-main: #c9d1d9; --text-muted: #8b949e; --accent: #58a6ff;
-            --ef-accent: #f2a900;
+            --bg-dark: #070a13;
+            --bg-elevated: #0d1322;
+            --panel-bg: rgba(16, 23, 41, 0.88);
+            --panel-card: rgba(21, 31, 56, 0.7);
+            --panel-border: rgba(56, 189, 248, 0.16);
+            --border-color: #1e293b;
+            --border-light: rgba(255, 255, 255, 0.08);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #38bdf8;
+            --accent-glow: rgba(56, 189, 248, 0.35);
+            --accent-hover: #0ea5e9;
+            --ef-accent: #f59e0b;
+            --gold: #fbbf24;
+            --gold-glow: rgba(251, 191, 36, 0.4);
+            --purple: #c084fc;
+            --purple-glow: rgba(192, 132, 252, 0.3);
+            --green: #34d399;
+            --red: #f87171;
+            --orange: #fb923c;
+            --card-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.6), 0 0 15px rgba(56, 189, 248, 0.05);
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 14px;
         }
-        body { background-color: var(--bg-dark); color: var(--text-main); font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; }
-        .container { max-width: 1200px; margin: 0 auto; }
-        
-        .nav-header { border-bottom: 2px solid var(--border-color); padding-bottom: 15px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
-        .nav-tabs { display: flex; flex-wrap: wrap; gap: 5px; }
-        .nav-tabs button { background: transparent; color: var(--text-muted); border: none; font-size: 16px; padding: 10px 15px; cursor: pointer; border-bottom: 2px solid transparent; transition: 0.2s; }
-        .nav-tabs button:hover { color: var(--text-main); }
-        .nav-tabs button.active { color: var(--accent); border-bottom: 2px solid var(--accent); font-weight: bold; }
-        
-        #drop-zone { background: var(--panel-bg); border: 2px dashed var(--border-color); border-radius: 8px; padding: 40px; text-align: center; color: var(--text-muted); margin-bottom: 20px; transition: 0.3s; cursor: pointer;}
-        #drop-zone.dragover { border-color: var(--accent); background: rgba(88, 166, 255, 0.1); color: var(--accent); }
-        .app-view { display: none; } .app-view.active { display: block; animation: fadeIn 0.3s; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        .uid-tabs { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
-        .uid-btn { background: #21262d; color: var(--text-muted); border: 1px solid var(--border-color); padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px; transition: 0.2s; }
-        .uid-btn:hover { background: var(--border-color); color: #fff; }
-        .uid-btn.active { background: #1f6feb; color: #fff; border-color: #1f6feb; font-weight: bold; }
-        
+        * { box-sizing: border-box; }
+        body {
+            background-color: var(--bg-dark);
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(30, 58, 138, 0.28) 0%, transparent 45%),
+                radial-gradient(circle at 85% 75%, rgba(88, 28, 135, 0.22) 0%, transparent 45%),
+                radial-gradient(circle at 50% 50%, rgba(15, 23, 42, 0.5) 0%, transparent 100%);
+            background-attachment: fixed;
+            color: var(--text-main);
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Inter', sans-serif;
+            margin: 0;
+            padding: 24px 16px;
+            min-height: 100vh;
+        }
+
+        .container { max-width: 1360px; margin: 0 auto; }
+
+        /* Navigation Header */
+        .nav-header {
+            background: rgba(13, 19, 34, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--panel-border);
+            border-radius: var(--radius-lg);
+            padding: 16px 24px;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+        }
+        .brand-area { display: flex; align-items: center; gap: 12px; }
+        .brand-logo { font-size: 28px; line-height: 1; filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.5)); }
+        .brand-title {
+            margin: 0;
+            font-size: 1.6rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #ffffff 30%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .brand-badge {
+            background: rgba(52, 211, 153, 0.12);
+            color: var(--green);
+            border: 1px solid rgba(52, 211, 153, 0.3);
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 999px;
+            font-weight: 600;
+            letter-spacing: 0.03em;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .nav-tabs { display: flex; flex-wrap: wrap; gap: 8px; background: rgba(7, 10, 19, 0.6); padding: 5px; border-radius: var(--radius-md); border: 1px solid var(--border-color); }
+        .nav-tabs button {
+            background: transparent;
+            color: var(--text-muted);
+            border: none;
+            font-size: 14px;
+            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .nav-tabs button:hover { color: var(--text-main); background: rgba(255, 255, 255, 0.05); }
+        .nav-tabs button.active {
+            color: #ffffff;
+            background: linear-gradient(135deg, #0284c7, #0369a1);
+            box-shadow: 0 2px 10px rgba(2, 132, 199, 0.4);
+        }
+
+        /* Drop Zone */
+        #drop-zone-container { margin-bottom: 24px; }
+        #drop-zone {
+            background: var(--panel-bg);
+            backdrop-filter: blur(12px);
+            border: 2px dashed rgba(56, 189, 248, 0.28);
+            border-radius: var(--radius-lg);
+            padding: 32px 20px;
+            text-align: center;
+            color: var(--text-muted);
+            transition: all 0.25s ease;
+            cursor: pointer;
+            position: relative;
+            box-shadow: var(--card-shadow);
+        }
+        #drop-zone:hover {
+            border-color: var(--accent);
+            background: rgba(16, 23, 41, 0.95);
+            box-shadow: 0 0 25px rgba(56, 189, 248, 0.18);
+        }
+        #drop-zone.dragover {
+            border-color: var(--accent);
+            background: rgba(56, 189, 248, 0.12);
+            color: var(--accent);
+            transform: scale(1.005);
+        }
+        .drop-icon { font-size: 34px; margin-bottom: 8px; filter: drop-shadow(0 0 12px var(--accent-glow)); }
+        .drop-title { font-size: 1.2rem; font-weight: 700; color: var(--text-main); margin-bottom: 6px; }
+        .drop-desc { font-size: 0.88rem; margin-bottom: 12px; color: var(--text-muted); }
+        .drop-badges { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+        .drop-badge {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--border-color);
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-family: monospace;
+            color: var(--text-main);
+        }
+        .drop-actions { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; }
+        .btn-action {
+            background: rgba(56, 189, 248, 0.14);
+            border: 1px solid rgba(56, 189, 248, 0.35);
+            color: var(--accent);
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-action:hover {
+            background: var(--accent);
+            color: #070a13;
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+        }
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-secondary:hover { background: rgba(255, 255, 255, 0.12); border-color: rgba(255, 255, 255, 0.2); }
+        .btn-gold {
+            background: rgba(245, 158, 11, 0.15);
+            border: 1px solid rgba(245, 158, 11, 0.4);
+            color: var(--gold);
+        }
+        .btn-gold:hover {
+            background: var(--gold);
+            color: #070a13;
+            box-shadow: 0 0 15px var(--gold-glow);
+        }
+
+        /* App Views */
+        .app-view { display: none; }
+        .app-view.active { display: block; animation: fadeIn 0.3s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Level 1: Accounts (UID Tabs) - Single Account Display Fix */
         .account-view { display: none; }
-        .account-view.active { display: block; animation: fadeIn 0.3s; }
+        .account-view.active { display: block; animation: fadeIn 0.25s ease-out; }
 
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(500px, 1fr)); gap: 30px; margin-top: 20px; }
-        .card { background-color: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.5); display: flex; flex-direction: column; overflow-x: auto; }
-        .card-header { display: flex; justify-content: space-between; margin-bottom: 15px; }
-        .banner-name { font-weight: bold; font-size: 1.2em; color: #f0f6fc; }
-        .pool-sub { font-size: 12px; color: var(--text-muted); text-transform: uppercase; font-weight: bold; margin-bottom: 10px; margin-top: -10px; }
-        
-        .stat-row { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 0.9em; }
-        .progress-container { background-color: #21262d; height: 24px; border-radius: 12px; overflow: hidden; margin: 15px 0; position: relative; }
-        .progress-bar { height: 100%; transition: width 0.5s; background: linear-gradient(90deg, #238636, #e3b341, #da3633); } 
-        .ef-progress-bar { height: 100%; transition: width 0.5s; background: linear-gradient(90deg, #ffd700, #ffaa00); } 
-        .progress-text { position: absolute; width: 100%; text-align: center; top: 2px; font-weight: bold; text-shadow: 1px 1px 2px black; color: white; }
-        
-        .fifty-box { background: rgba(31, 111, 235, 0.1); border: 1px solid rgba(31, 111, 235, 0.3); padding: 10px; border-radius: 6px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
-        .fifty-title { font-size: 0.8em; color: var(--accent); font-weight: bold; text-transform: uppercase; }
-        .fifty-val { font-weight: bold; font-size: 1em; }
-        
-        .guarantee-box { background: rgba(242, 169, 0, 0.08); border: 1px solid rgba(242, 169, 0, 0.2); border-radius: 6px; padding: 10px; margin-bottom: 15px; }
-        .g-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 5px; color: var(--text-main); }
-        
-        table { width: 100%; border-collapse: collapse; font-size: 0.85em; }
-        th { text-align: left; color: var(--text-muted); border-bottom: 1px solid var(--border-color); padding: 10px 8px; background: #21262d; }
-        td { padding: 8px; border-bottom: 1px solid #21262d; vertical-align: middle; }
-        .name-cell { font-weight: bold; font-size: 1.05em; }
-        .gold-text { color: #e3b341; } .purple-text { color: #a371f7; }
-        
-        .badge { padding: 3px 8px; border-radius: 4px; font-size: 0.85em; font-weight: bold; display: inline-block; white-space: nowrap; }
-        .badge-god { background: rgba(163, 113, 247, 0.2); color: #a371f7; border: 1px solid #a371f7; }
-        .badge-lucky { background: rgba(63, 185, 80, 0.2); color: #3fb950; border: 1px solid rgba(63, 185, 80, 0.4); }
-        .badge-early { background: rgba(88, 166, 255, 0.2); color: var(--accent); border: 1px solid rgba(88, 166, 255, 0.4); }
-        .badge-soft { background: rgba(210, 153, 34, 0.2); color: #d29922; border: 1px solid rgba(210, 153, 34, 0.4); }
-        .badge-hard { background: rgba(248, 81, 73, 0.2); color: #f85149; border: 1px solid rgba(248, 81, 73, 0.4); }
-        .badge-4star { border: 1px solid var(--border-color); color: var(--text-muted); font-weight: normal; }
-        .tag-win { margin-left: 6px; font-size: 0.75em; border: 1px solid #3fb950; color: #3fb950; padding: 1px 4px; border-radius: 3px; }
-        .tag-loss { margin-left: 6px; font-size: 0.75em; border: 1px solid #f85149; color: #f85149; padding: 1px 4px; border-radius: 3px; }
-        
-        .show-year-btn { display: block; width: 100%; background: #21262d; border: 1px dashed var(--border-color); color: var(--text-muted); padding: 8px; margin-top: 10px; cursor: pointer; border-radius: 4px; }
-        .show-year-btn:hover { background: var(--border-color); color: #fff; }
-        .control-bar { text-align: right; margin-bottom: 5px; }
-        .toggle-btn { background: none; border: 1px solid var(--border-color); color: var(--text-muted); font-size: 0.8em; padding: 4px 8px; border-radius: 4px; cursor: pointer; }
-        .toggle-btn.active { background: rgba(163, 113, 247, 0.2); border-color: #a371f7; color: #a371f7; }
-        .hide-4stars .row-4star { display: none !important; }
-        .clear-btn { background: transparent; border: 1px solid #f85149; color: #f85149; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.8em; }
-        .clear-btn:hover { background: rgba(248, 81, 73, 0.1); }
+        .uid-container { margin-bottom: 20px; }
+        .uid-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            padding: 12px 18px;
+            background: rgba(13, 19, 34, 0.85);
+            border: 1px solid var(--panel-border);
+            border-radius: var(--radius-md);
+            margin-bottom: 20px;
+        }
+        .uid-tabs { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+        .uid-btn {
+            background: rgba(21, 31, 56, 0.8);
+            color: var(--text-muted);
+            border: 1px solid var(--border-color);
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .uid-btn:hover { background: rgba(56, 189, 248, 0.12); color: var(--text-main); border-color: var(--accent); }
+        .uid-btn.active {
+            background: linear-gradient(135deg, #0284c7, #0f766e);
+            color: #ffffff;
+            border-color: #38bdf8;
+            box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35);
+        }
+        .uid-edit-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #e2e8f0;
+            border-radius: 4px;
+            padding: 1px 5px;
+            font-size: 11px;
+            cursor: pointer;
+            margin-left: 4px;
+            transition: all 0.2s;
+            line-height: 1.2;
+            display: inline-flex;
+            align-items: center;
+        }
+        .uid-edit-btn:hover {
+            background: rgba(56, 189, 248, 0.3);
+            border-color: var(--accent);
+            color: #ffffff;
+            transform: scale(1.08);
+        }
+        .uid-btn.summary-btn {
+            border-color: rgba(192, 132, 252, 0.4);
+            background: rgba(192, 132, 252, 0.1);
+            color: var(--purple);
+            font-weight: 700;
+        }
+        .uid-btn.summary-btn:hover {
+            background: rgba(192, 132, 252, 0.2);
+            color: #ffffff;
+            border-color: var(--purple);
+        }
+        .uid-btn.summary-btn.active {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.85), rgba(126, 34, 206, 0.95));
+            color: #ffffff;
+            border-color: var(--purple);
+            box-shadow: 0 4px 14px var(--purple-glow);
+        }
 
-        .flex-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 15px;}
+        /* Level 2: Banner Sub-Navigation Tabs */
+        .banner-subtabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 12px;
+        }
+        .subtab-btn {
+            background: rgba(16, 23, 41, 0.6);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 9px 18px;
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .subtab-btn:hover { background: rgba(56, 189, 248, 0.08); color: var(--text-main); border-color: rgba(56, 189, 248, 0.4); }
+        .subtab-btn.active {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.25), rgba(14, 165, 233, 0.15));
+            border-color: var(--accent);
+            color: #ffffff;
+            box-shadow: 0 0 12px rgba(56, 189, 248, 0.25);
+        }
+
+        /* Banner Content View */
+        .banner-view-panel { display: none; }
+        .banner-view-panel.active { display: block; animation: fadeIn 0.25s ease-out; }
+
+        /* Banner Hero Stats Card */
+        .banner-hero-card {
+            background: var(--panel-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--panel-border);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: var(--card-shadow);
+        }
+        .banner-hero-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .banner-title { font-size: 1.45rem; font-weight: 800; color: #ffffff; margin: 0; }
+        .banner-subtitle { font-size: 11px; color: var(--accent); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700; margin-top: 3px; }
+        .banner-pills { display: flex; gap: 8px; flex-wrap: wrap; }
+        .pill-badge {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-family: monospace;
+            color: var(--text-main);
+        }
+
+        /* Banner Metric Grid (Removed Fake Stellar Jades) */
+        .banner-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 14px;
+            margin: 18px 0;
+        }
+        .b-stat-box {
+            background: rgba(10, 15, 29, 0.65);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 14px 16px;
+        }
+        .b-stat-label { font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700; letter-spacing: 0.04em; margin-bottom: 4px; }
+        .b-stat-val { font-size: 1.4rem; font-weight: 800; color: #ffffff; font-family: monospace; }
+
+        /* =========================================
+           MINIMALIST DUAL-TIER GLASS PILL PITY BAR
+           ========================================= */
+        .pity-pill-wrap {
+            margin: 18px 0 10px 0;
+            background: rgba(8, 14, 28, 0.55);
+            border: 1px solid rgba(56, 189, 248, 0.16);
+            border-radius: var(--radius-md);
+            padding: 14px 18px;
+        }
+        .pity-pill-labels {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+        .pity-pill-track {
+            height: 18px;
+            background: rgba(15, 23, 42, 0.95);
+            border-radius: 9999px;
+            overflow: hidden;
+            position: relative;
+            padding: 2px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.8);
+        }
+        .pity-pill-fill {
+            height: 100%;
+            border-radius: 9999px;
+            background: linear-gradient(90deg, #0284c7 0%, #38bdf8 80%, #67e8f9 100%);
+            box-shadow: 0 0 12px rgba(56, 189, 248, 0.65);
+            transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+        }
+        .pity-pill-fill::after {
+            content: '';
+            position: absolute;
+            top: 1px; left: 4px; right: 4px; height: 40%;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.4), transparent);
+            border-radius: 9999px;
+            pointer-events: none;
+        }
+        .pity-pill-fill.in-soft-pity {
+            background: linear-gradient(90deg, #d97706 0%, #f59e0b 50%, #ef4444 100%);
+            box-shadow: 0 0 18px rgba(245, 158, 11, 0.85);
+            animation: softPulsePill 2s infinite alternate;
+        }
+        @keyframes softPulsePill {
+            0% { filter: brightness(1); }
+            100% { filter: brightness(1.25); box-shadow: 0 0 24px rgba(239, 68, 68, 0.95); }
+        }
+        .pity-pill-target {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            right: 0;
+            background: rgba(245, 158, 11, 0.1);
+            border-left: 2px dashed rgba(245, 158, 11, 0.65);
+            pointer-events: none;
+        }
+        .pity-pill-sub {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 8px;
+        }
+        .pity-subtext {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        /* Charts Grid - 2 Balanced Columns */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .chart-card {
+            background: var(--panel-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--panel-border);
+            border-radius: var(--radius-md);
+            padding: 18px;
+            box-shadow: var(--card-shadow);
+            display: flex;
+            flex-direction: column;
+        }
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .chart-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .chart-body {
+            position: relative;
+            min-height: 220px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .chart-svg { overflow: visible; }
+        .chart-point:hover { opacity: 1; filter: drop-shadow(0 0 6px currentColor); cursor: pointer; }
+        .chart-empty { color: var(--text-muted); font-size: 12px; text-align: center; }
+
+        /* Toolbar: Filter, Search & Sort (Polished Sci-Fi Control Hub) */
+        .toolbar-panel {
+            background: linear-gradient(135deg, rgba(13, 20, 36, 0.95), rgba(8, 14, 28, 0.95));
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            border-radius: var(--radius-md);
+            padding: 12px 16px;
+            margin-bottom: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+        }
+        .toolbar-left, .toolbar-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .filter-pill-group {
+            display: inline-flex;
+            gap: 3px;
+            background: rgba(4, 8, 18, 0.85);
+            padding: 3px;
+            border-radius: 8px;
+            border: 1px solid rgba(56, 189, 248, 0.18);
+            box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.6);
+        }
+        .filter-pill {
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-muted);
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+        .filter-pill:hover {
+            color: var(--text-main);
+            background: rgba(255, 255, 255, 0.04);
+        }
+        .filter-pill.active {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.25), rgba(14, 165, 233, 0.15));
+            color: #38bdf8;
+            border-color: rgba(56, 189, 248, 0.5);
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+        }
+        .filter-pill.active.ddd-pill {
+            background: linear-gradient(135deg, rgba(192, 132, 252, 0.28), rgba(147, 51, 234, 0.2));
+            color: #d8b4fe;
+            border-color: rgba(192, 132, 252, 0.55);
+            box-shadow: 0 0 10px rgba(192, 132, 252, 0.3);
+        }
+        .search-control-wrap {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+        }
+        .search-icon-prefix {
+            position: absolute;
+            left: 12px;
+            color: rgba(56, 189, 248, 0.65);
+            font-size: 13px;
+            pointer-events: none;
+        }
+        .search-box {
+            background: rgba(6, 11, 25, 0.9);
+            border: 1px solid rgba(56, 189, 248, 0.22);
+            color: var(--text-main);
+            padding: 8px 12px 8px 34px;
+            border-radius: 8px;
+            font-size: 12px;
+            min-width: 220px;
+            transition: all 0.25s ease;
+            box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.5);
+        }
+        .search-box::placeholder { color: #64748b; }
+        .search-box:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: rgba(10, 18, 38, 0.95);
+            box-shadow: 0 0 12px var(--accent-glow), inset 0 1px 4px rgba(0, 0, 0, 0.5);
+        }
+        .sort-control-wrap {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+        }
+        .sort-select {
+            background: rgba(6, 11, 25, 0.9);
+            border: 1px solid rgba(56, 189, 248, 0.22);
+            color: var(--text-main);
+            padding: 8px 28px 8px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            appearance: none;
+            transition: all 0.2s ease;
+            box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.5);
+        }
+        .sort-control-wrap::after {
+            content: '▾';
+            position: absolute;
+            right: 10px;
+            color: rgba(56, 189, 248, 0.7);
+            font-size: 11px;
+            pointer-events: none;
+        }
+        .sort-select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        /* Account Color Coding & Gradients */
+        .acc-palette-0 { --acc-hue: 200; --acc-grad: linear-gradient(90deg, rgba(56, 189, 248, 0.16) 0%, rgba(56, 189, 248, 0.04) 35%, transparent 100%); --acc-color: #38bdf8; --acc-border: rgba(56, 189, 248, 0.45); }
+        .acc-palette-1 { --acc-hue: 270; --acc-grad: linear-gradient(90deg, rgba(192, 132, 252, 0.18) 0%, rgba(192, 132, 252, 0.04) 35%, transparent 100%); --acc-color: #c084fc; --acc-border: rgba(192, 132, 252, 0.45); }
+        .acc-palette-2 { --acc-hue: 155; --acc-grad: linear-gradient(90deg, rgba(52, 211, 153, 0.16) 0%, rgba(52, 211, 153, 0.04) 35%, transparent 100%); --acc-color: #34d399; --acc-border: rgba(52, 211, 153, 0.45); }
+        .acc-palette-3 { --acc-hue: 35;  --acc-grad: linear-gradient(90deg, rgba(251, 191, 36, 0.16) 0%, rgba(251, 191, 36, 0.04) 35%, transparent 100%); --acc-color: #fbbf24; --acc-border: rgba(251, 191, 36, 0.45); }
+        .acc-palette-4 { --acc-hue: 330; --acc-grad: linear-gradient(90deg, rgba(244, 114, 182, 0.16) 0%, rgba(244, 114, 182, 0.04) 35%, transparent 100%); --acc-color: #f472b6; --acc-border: rgba(244, 114, 182, 0.45); }
+        .acc-palette-5 { --acc-hue: 180; --acc-grad: linear-gradient(90deg, rgba(45, 212, 191, 0.16) 0%, rgba(45, 212, 191, 0.04) 35%, transparent 100%); --acc-color: #2dd4bf; --acc-border: rgba(45, 212, 191, 0.45); }
+
+        .acc-badge-colored {
+            color: var(--acc-color) !important;
+            border-color: var(--acc-border) !important;
+            background: rgba(0, 0, 0, 0.35) !important;
+            box-shadow: 0 0 8px rgba(0,0,0,0.5);
+            font-weight: 700;
+        }
+
+        tr.acc-row-gradient {
+            background-image: var(--acc-grad) !important;
+            background-repeat: no-repeat;
+            transition: background 0.2s;
+        }
+        tr.acc-row-gradient:hover {
+            filter: brightness(1.15);
+        }
+
+        .uid-del-btn {
+            background: rgba(248, 113, 113, 0.12);
+            border: 1px solid rgba(248, 113, 113, 0.3);
+            color: #fca5a5;
+            border-radius: 4px;
+            padding: 1px 5px;
+            font-size: 11px;
+            cursor: pointer;
+            margin-left: 2px;
+            transition: all 0.2s;
+            line-height: 1.2;
+            display: inline-flex;
+            align-items: center;
+        }
+        .uid-del-btn:hover {
+            background: rgba(239, 68, 68, 0.4);
+            border-color: #ef4444;
+            color: #ffffff;
+            transform: scale(1.08);
+        }
+
+        /* Compact Upload Bar (Shown when data is loaded) */
+        #drop-zone-container.compact-mode #drop-zone {
+            display: none;
+        }
+        #compact-upload-bar {
+            display: none;
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 10px 16px;
+            margin-bottom: 18px;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        #drop-zone-container.compact-mode #compact-upload-bar {
+            display: flex;
+        }
+        .compact-bar-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+        .compact-bar-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .table-wrap {
+            overflow-x: auto;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+            background: rgba(10, 15, 29, 0.5);
+            height: 480px;
+            min-height: 480px;
+            max-height: 480px;
+            overflow-y: auto;
+        }
+        .empty-filter-cell {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+        .empty-filter-icon {
+            font-size: 28px;
+            margin-bottom: 8px;
+            opacity: 0.6;
+        }
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; text-align: left; }
+        th {
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border-color);
+            padding: 11px 14px;
+            background: rgba(15, 23, 42, 0.96);
+            font-weight: 700;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            position: sticky;
+            top: 0;
+            z-index: 2;
+        }
+        td { padding: 9px 14px; border-bottom: 1px solid rgba(30, 41, 59, 0.6); vertical-align: middle; }
+        tr:hover { background: rgba(56, 189, 248, 0.04); }
+        .name-cell { font-weight: 700; font-size: 0.95rem; display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
+        .gold-text { color: var(--gold); text-shadow: 0 0 10px rgba(251, 191, 36, 0.25); }
+        .purple-text { color: var(--purple); }
+
+        /* Badges */
+        .badge {
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            display: inline-block;
+            white-space: nowrap;
+            letter-spacing: 0.02em;
+        }
+        .badge-god { background: rgba(192, 132, 252, 0.22); color: #e9d5ff; border: 1px solid #c084fc; box-shadow: 0 0 10px rgba(192, 132, 252, 0.35); }
+        .badge-lucky { background: rgba(52, 211, 153, 0.2); color: #6ee7b7; border: 1px solid rgba(52, 211, 153, 0.5); }
+        .badge-early { background: rgba(56, 189, 248, 0.2); color: #7dd3fc; border: 1px solid rgba(56, 189, 248, 0.5); }
+        .badge-soft { background: rgba(251, 146, 60, 0.2); color: #fdba74; border: 1px solid rgba(251, 146, 60, 0.5); }
+        .badge-hard { background: rgba(248, 113, 113, 0.22); color: #fca5a5; border: 1px solid rgba(248, 113, 113, 0.5); }
+        .badge-4star { background: rgba(192, 132, 252, 0.12); border: 1px solid rgba(192, 132, 252, 0.3); color: #d8b4fe; font-weight: 600; }
+        .badge-reg { background: rgba(255, 255, 255, 0.05); color: var(--text-muted); border: 1px solid var(--border-color); }
+        .tag-win {
+            font-size: 10px;
+            background: rgba(52, 211, 153, 0.18);
+            border: 1px solid #34d399;
+            color: #34d399;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-weight: 800;
+        }
+        .tag-loss {
+            font-size: 10px;
+            background: rgba(248, 113, 113, 0.18);
+            border: 1px solid #f87171;
+            color: #f87171;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-weight: 800;
+        }
+
+        /* General Buttons */
+        .clear-btn {
+            background: rgba(248, 113, 113, 0.08);
+            border: 1px solid rgba(248, 113, 113, 0.35);
+            color: #fca5a5;
+            padding: 7px 14px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .clear-btn:hover { background: rgba(248, 113, 113, 0.2); color: #ffffff; border-color: #f87171; }
+
+        /* Guide View Styles */
+        .guide-container { display: flex; flex-direction: column; gap: 24px; }
+        .guide-hero {
+            background: linear-gradient(135deg, rgba(30, 58, 138, 0.35), rgba(15, 23, 42, 0.85));
+            border: 1px solid var(--panel-border);
+            border-radius: var(--radius-lg);
+            padding: 28px;
+            box-shadow: var(--card-shadow);
+        }
+        .guide-hero h2 { margin-top: 0; font-size: 1.8rem; color: #ffffff; margin-bottom: 10px; }
+        .guide-hero p { color: var(--text-muted); font-size: 1rem; line-height: 1.6; margin: 0; }
+        .guide-card {
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            box-shadow: var(--card-shadow);
+        }
+        .guide-card h3 { margin-top: 0; font-size: 1.3rem; color: #ffffff; display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+        .guide-card p, .guide-card li { color: var(--text-muted); line-height: 1.6; font-size: 0.95rem; }
+        .code-box {
+            background: #050811;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: 14px 18px;
+            margin: 14px 0;
+            position: relative;
+            font-family: 'Consolas', 'Fira Code', monospace;
+            font-size: 13px;
+            color: #e2e8f0;
+            overflow-x: auto;
+            white-space: pre;
+        }
+        .copy-code-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(56, 189, 248, 0.15);
+            border: 1px solid rgba(56, 189, 248, 0.4);
+            color: var(--accent);
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .copy-code-btn:hover { background: var(--accent); color: #070a13; }
+        .steps-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin: 16px 0; }
+        .step-item { background: rgba(10, 15, 29, 0.6); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 16px; }
+        .step-num { display: inline-flex; width: 26px; height: 26px; background: var(--accent); color: #070a13; border-radius: 50%; align-items: center; justify-content: center; font-weight: 800; font-size: 13px; margin-bottom: 10px; }
+        .step-title { font-weight: 700; color: #ffffff; margin-bottom: 6px; font-size: 1rem; }
+        .step-desc { font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.5; }
+        .paste-box { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+        .paste-textarea { width: 100%; height: 180px; background: #050811; border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 12px; color: #f8fafc; font-family: monospace; font-size: 12px; resize: vertical; }
+        .paste-textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 10px var(--accent-glow); }
+        .paste-controls { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+        .uid-input { background: #050811; border: 1px solid var(--border-color); color: #f8fafc; padding: 8px 12px; border-radius: var(--radius-sm); font-size: 13px; font-family: monospace; }
+        .uid-input:focus { outline: none; border-color: var(--accent); }
+        .privacy-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-top: 16px; }
+        .privacy-card { background: rgba(10, 15, 29, 0.7); border: 1px solid rgba(52, 211, 153, 0.2); border-radius: var(--radius-md); padding: 16px; }
+        .privacy-icon { font-size: 24px; margin-bottom: 8px; }
+        .privacy-heading { color: #ffffff; font-weight: 700; margin-bottom: 6px; font-size: 1rem; }
+        .privacy-body { color: var(--text-muted); font-size: 0.88rem; line-height: 1.5; margin: 0; }
+
+        /* Modal Dialog */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(8px); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
+        .modal-overlay.active { display: flex; animation: fadeIn 0.2s ease-out; }
+        .modal-content { background: var(--bg-elevated); border: 1px solid var(--panel-border); border-radius: var(--radius-lg); max-width: 650px; width: 100%; padding: 24px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .modal-title { font-size: 1.3rem; font-weight: 700; color: #ffffff; margin: 0; }
+        .modal-close { background: none; border: none; color: var(--text-muted); font-size: 22px; cursor: pointer; }
+        .modal-close:hover { color: #ffffff; }
+
+        /* SVG Tooltip */
+        #svg-tooltip {
+            position: fixed;
+            background: rgba(15, 23, 42, 0.95);
+            border: 1px solid var(--accent);
+            color: #ffffff;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            pointer-events: none;
+            z-index: 3000;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.6);
+            display: none;
+            transform: translate(-50%, -120%);
+        }
+
+        /* Toast Notifications */
+        #toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: rgba(15, 23, 42, 0.95);
+            border: 1px solid var(--accent);
+            color: #ffffff;
+            padding: 12px 20px;
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            font-weight: 600;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6), 0 0 15px var(--accent-glow);
+            z-index: 2000;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.25s ease;
+            pointer-events: none;
+        }
+        #toast.show { opacity: 1; transform: translateY(0); }
+
+        /* Empty State */
+        .empty-state { text-align: center; padding: 48px 20px; background: var(--panel-bg); border: 1px dashed var(--border-color); border-radius: var(--radius-lg); color: var(--text-muted); }
+        .empty-icon { font-size: 42px; margin-bottom: 12px; }
+        .empty-text { font-size: 1.05rem; color: var(--text-main); font-weight: 600; margin-bottom: 6px; }
 
         @media (max-width: 768px) {
-            body { padding: 10px; }
-            .grid { grid-template-columns: 1fr; }
-            .nav-tabs button { font-size: 14px; padding: 8px 10px; flex: 1; text-align: center; }
-            .nav-header h1 { font-size: 1.5em; text-align: center; width: 100%; }
-            .clear-btn { width: 100%; margin-left: 0 !important; margin-bottom: 10px; }
-            .fifty-box { flex-direction: column; text-align: center; gap: 10px; }
-            .fifty-box > div { width: 100%; text-align: center !important; }
+            body { padding: 12px 8px; }
+            .charts-grid { grid-template-columns: 1fr; }
+            .nav-tabs { width: 100%; justify-content: center; }
+            .nav-tabs button { font-size: 13px; padding: 8px 12px; flex: 1; text-align: center; justify-content: center; }
+            .nav-header { padding: 14px; }
+            .toolbar-panel { flex-direction: column; align-items: stretch; }
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="nav-header">
-        <h1>Gacha Hub</h1>
-        <div class="nav-tabs">
-            <button class="tab-btn active" onclick="switchTab('hsr-view')">HSR Dashboard</button>
-            <button class="tab-btn" onclick="switchTab('endfield-view')">Endfield Dashboard</button>
+    <!-- Navigation Header -->
+    <header class="nav-header">
+        <div class="brand-area">
+            <span class="brand-logo">🌠</span>
+            <div><h1 class="brand-title">Gacha Hub</h1></div>
+            <span class="brand-badge" title="Zero backend. 100% client-side privacy.">🛡️ 100% Client-Side Private</span>
         </div>
-    </div>
+        <nav class="nav-tabs">
+            <button class="tab-btn active" onclick="switchTab('hsr-view')">⭐ HSR Dashboard</button>
+            <button class="tab-btn" onclick="switchTab('endfield-view')">🔶 Endfield (Archived)</button>
+            <button class="tab-btn" onclick="switchTab('guide-view')">📚 Tutorial & AI Guide</button>
+        </nav>
+    </header>
 
-    <div id="drop-zone-container">
-        <div id="drop-zone" onclick="document.getElementById('file-input').click()">
-            <h3>Drag & Drop JSON files here (or tap to browse)</h3>
-            <p style="margin-bottom: 5px;">Supports <code style="color:var(--accent)">hsr_*.json</code>, <code style="color:var(--ef-accent)">endfield_characters.json</code>, and <code style="color:var(--ef-accent)">endfield_weapons.json</code></p>
-            <p style="font-size: 0.85em; margin-top:0;">Your data is saved locally in your browser automatically.</p>
-            <input type="file" id="file-input" style="display: none;" accept=".json" multiple>
+    <!-- Drop Zone & Compact Upload Bar -->
+    <section id="drop-zone-container">
+        <!-- Expanded Full Drop Zone (Shown when no data exists) -->
+        <div id="drop-zone">
+            <div class="drop-icon">🚀</div>
+            <div class="drop-title">Drag & Drop Warp History JSON (or click to browse)</div>
+            <div class="drop-desc">All files are processed strictly inside your browser. Nothing is ever sent to any server.</div>
+            <div class="drop-badges">
+                <span class="drop-badge">hsr_UID.json</span>
+                <span class="drop-badge">custom_pulls.json</span>
+                <span class="drop-badge">endfield_characters.json</span>
+                <span class="drop-badge">endfield_weapons.json</span>
+            </div>
+            <div class="drop-actions" onclick="event.stopPropagation()">
+                <button class="btn-action" onclick="document.getElementById('file-input').click()">📁 Browse Files</button>
+                <button class="btn-secondary" onclick="openPasteModal()">📋 Paste JSON Directly</button>
+                <button class="btn-secondary btn-gold" onclick="loadDemoData()">✨ Load Sample Demo Data</button>
+            </div>
         </div>
-    </div>
 
-    <div id="hsr-view" class="app-view active">
-        <div class="flex-header">
-            <h2 style="margin: 0;">HSR Accounts</h2>
-            <button class="clear-btn" onclick="clearData('hsr_accounts')">Clear HSR Data</button>
+        <!-- Compact Upload Bar (Shown when data is already loaded) -->
+        <div id="compact-upload-bar">
+            <div class="compact-bar-info">
+                <span style="font-size:18px;">💾</span>
+                <span><strong>Local Warp Data Loaded.</strong> New files automatically merge with your existing database without duplicates.</span>
+            </div>
+            <div class="compact-bar-actions">
+                <button class="btn-action" onclick="document.getElementById('file-input').click()" style="padding:6px 14px; font-size:12px;">📤 Upload / Merge JSON</button>
+                <button class="btn-secondary" onclick="openPasteModal()" style="padding:6px 14px; font-size:12px;">📋 Paste JSON</button>
+            </div>
         </div>
-        <div id="hsr-content"><p style="color: var(--text-muted); text-align: center; padding: 20px;">No local HSR data found. Please upload a file.</p></div>
-    </div>
+        <input type="file" id="file-input" style="display: none;" accept=".json" multiple>
+    </section>
 
-    <div id="endfield-view" class="app-view">
-        <div class="flex-header">
-            <h2 style="margin: 0;">Arknights: Endfield</h2>
+    <!-- HSR DASHBOARD VIEW -->
+    <main id="hsr-view" class="app-view active">
+        <div id="hsr-content">
+            <div class="empty-state">
+                <div class="empty-icon">🌠</div>
+                <div class="empty-text">No local HSR warp data found</div>
+                <p>Drag & drop your <code>hsr_UID.json</code> above, paste JSON text, or explore with realistic sample data.</p>
+                <div style="margin-top: 16px;">
+                    <button class="btn-action btn-gold" onclick="loadDemoData()">✨ Load Sample HSR Data</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ENDFIELD DASHBOARD VIEW -->
+    <main id="endfield-view" class="app-view">
+        <div style="background:rgba(245, 158, 11, 0.08); border:1px solid rgba(245, 158, 11, 0.35); border-radius:var(--radius-md); padding:12px 18px; margin-bottom:16px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <span style="font-size:20px;">📦</span>
+                <div>
+                    <strong style="color:#fbbf24;">Historical Archive Mode:</strong>
+                    <span style="color:var(--text-muted); font-size:12px; margin-left:4px;">Arknights: Endfield tracking is no longer actively maintained. Retained for personal historical record visualization.</span>
+                </div>
+            </div>
             <button class="clear-btn" onclick="clearData('endfield_data')">Clear Endfield Data</button>
         </div>
-        <div id="endfield-content"><p style="color: var(--text-muted); text-align: center; padding: 20px;">No local Endfield data found. Upload characters/weapons JSON.</p></div>
+        <div id="endfield-content">
+            <div class="empty-state">
+                <div class="empty-icon">🔶</div>
+                <div class="empty-text">No Endfield data found</div>
+                <p>Upload <code>endfield_characters.json</code> or <code>endfield_weapons.json</code> to view headhunting statistics.</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- TUTORIAL & GUIDE TAB -->
+    <main id="guide-view" class="app-view">
+        <div class="guide-container">
+            <div class="guide-hero">
+                <h2>📚 Data Formatting, AI Assistant & Privacy Blueprint</h2>
+                <p>Learn how to format warp records with AI, import data safely, and understand how 100% client-side privacy protects your account.</p>
+            </div>
+
+            <div class="steps-grid">
+                <div class="step-item">
+                    <div class="step-num">1</div>
+                    <div class="step-title">Get Your Raw History</div>
+                    <div class="step-desc">Export your warp logs, copy text from warp records, or take screenshots of your in-game pull history.</div>
+                </div>
+                <div class="step-item">
+                    <div class="step-num">2</div>
+                    <div class="step-title">Structure with AI or Code</div>
+                    <div class="step-desc">Use our ready-to-copy AI prompt below to turn any pull list into clean, compliant JSON in seconds.</div>
+                </div>
+                <div class="step-item">
+                    <div class="step-num">3</div>
+                    <div class="step-title">Import & Visualize</div>
+                    <div class="step-desc">Paste the JSON or drag & drop the file into Gacha Hub. Pity, charts, and streaks calculate instantly!</div>
+                </div>
+            </div>
+
+            <div class="guide-card">
+                <h3>🤖 Let Your AI Format It (Ready-to-Use Prompt)</h3>
+                <p>Copy this prompt and paste it into <strong>ChatGPT, Claude, Gemini, or DeepSeek</strong> along with your raw pulls:</p>
+                <div class="code-box">
+<button class="copy-code-btn" onclick="copyAIPrompt(this)">📋 Copy AI Prompt</button><code id="ai-prompt-text">You are a precise data conversion assistant. Please convert my gacha warp records from the game "Honkai: Star Rail" into a strict JSON array for the Gacha Hub visualizer.
+
+Format Requirements:
+1. Output MUST be ONLY valid JSON (a single top-level array of objects).
+2. Do not include markdown commentary, conversational replies, or extra notes.
+3. Each item in the array must adhere to this exact schema:
+[
+  {
+    "gacha_type": "11",
+    "id": "1000000000000001",
+    "name": "Character or Light Cone Name",
+    "item_type": "Character",
+    "rank_type": "5",
+    "time": "YYYY-MM-DD HH:MM:SS",
+    "uid": "YOUR_UID"
+  }
+]
+
+Field Rules:
+- "gacha_type": Use "11" for Character Event, "12" for Light Cone Event, "1" for Stellar Warp (Standard), "2" for Departure Warp (Beginner), "21" for Collab Character, "22" for Collab Light Cone.
+- "id": A unique sequence string or timestamp number to preserve chronological order (oldest to newest).
+- "name": Official English in-game item name (e.g. "Acheron", "Bronya").
+- "item_type": Either "Character" or "Light Cone".
+- "rank_type": String "3", "4", or "5".
+- "time": Datetime string in "YYYY-MM-DD HH:MM:SS" format.
+- "uid": Optional account UID string.
+
+Here is my raw warp history:
+[PASTE YOUR RAW WARP LOGS, SCREENSHOT OCR, OR TEXT HERE]</code></div>
+            </div>
+
+            <div class="guide-card">
+                <h3>📥 Direct JSON Importer</h3>
+                <div class="paste-box">
+                    <textarea id="guide-paste-text" class="paste-textarea" placeholder='[ {"gacha_type":"11", "id":"1", "name":"Acheron", "item_type":"Character", "rank_type":"5", "time":"2024-03-27 12:00:00"} ]'></textarea>
+                    <div class="paste-controls">
+                        <input type="text" id="guide-paste-uid" class="uid-input" placeholder="Custom UID (optional, e.g. 800123456)">
+                        <button class="btn-action" onclick="importFromGuide()">Import Directly to Dashboard</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="guide-card">
+                <h3>🛡️ Security, Privacy & Local Fetching Blueprint</h3>
+                <div class="privacy-grid">
+                    <div class="privacy-card">
+                        <div class="privacy-icon">🔒</div>
+                        <div class="privacy-heading">Zero Server Architecture</div>
+                        <p class="privacy-body">Gacha Hub runs 100% on client-side HTML and vanilla JavaScript. There is no backend server, no cloud database, and no telemetry.</p>
+                    </div>
+                    <div class="privacy-card">
+                        <div class="privacy-icon">💻</div>
+                        <div class="privacy-heading">Local-Only Storage</div>
+                        <p class="privacy-body">Uploaded JSON data is saved strictly to your browser's private <code>localStorage</code> sandbox.</p>
+                    </div>
+                    <div class="privacy-card">
+                        <div class="privacy-icon">🔑</div>
+                        <div class="privacy-heading">Zero Password / Auth Risk</div>
+                        <p class="privacy-body">Gacha Hub will never ask for your Hoyoverse credentials. The game's <code>authkey</code> is a read-only token that expires in 24 hours.</p>
+                    </div>
+                </div>
+
+                <!-- Manual URL Extraction & Transparent Local Script Guide -->
+                <div style="margin-top:24px; padding:20px; background:rgba(7, 10, 19, 0.85); border:1px solid rgba(56, 189, 248, 0.25); border-radius:var(--radius-md);">
+                    <h4 style="margin:0 0 10px 0; color:#38bdf8; font-size:1.1rem; display:flex; align-items:center; gap:8px;">
+                        <span>🐍 Transparent Python Updater: Why We Don't Use Black-Box Exes</span>
+                    </h4>
+                    <p style="color:var(--text-main); font-size:0.92rem; line-height:1.6; margin-bottom:12px;">
+                        Many online tools ask you to download automated closed-source <code>.exe</code> files or run obfuscated PowerShell scripts that silently inspect your web cache. <strong>We strictly advise against that</strong> because untrusted executables can steal browser cookies, Discord sessions, or saved passwords.
+                    </p>
+                    
+                    <div style="background:rgba(245, 158, 11, 0.1); border-left:4px solid #f59e0b; padding:12px 16px; border-radius:0 6px 6px 0; margin-bottom:16px;">
+                        <strong style="color:#fbbf24;">⚠️ Critical Note on Banner URLs & Authentication:</strong>
+                        <p style="color:#e2e8f0; font-size:0.88rem; margin:6px 0 0 0; line-height:1.5;">
+                            When you open the in-game Warp History, Star Rail writes a temporary web log containing a <code>getGachaLog</code> URL with your temporary 24-hour <code>authkey</code>. 
+                        </p>
+                        <ul style="color:#cbd5e1; font-size:0.85rem; margin:8px 0 0 0; padding-left:20px; line-height:1.5;">
+                            <li><strong>Special Event / Collab Banners:</strong> Certain special banners (like Collab Character / Light Cone warps) may generate a distinct URL query or require clicking directly into that banner's own history tab in-game so the log records the right authentication parameters.</li>
+                            <li><strong>Departure Warp (Starter 50-Pull Banner):</strong> This is the permanent beginner discount banner (20% off standard passes, guaranteed 5★ within 50 pulls). Once completed (50/50 pulls), the game closes the banner permanently. If your account was created long ago, Hoyoverse may no longer keep records for it since in-game logs only store recent months.</li>
+                        </ul>
+                    </div>
+
+                    <h5 style="color:#ffffff; margin:14px 0 6px 0; font-size:0.95rem;">💡 How to Safely Inspect & Run Your Own Local Script:</h5>
+                    <ol style="color:var(--text-muted); font-size:0.88rem; line-height:1.6; padding-left:20px; margin-bottom:14px;">
+                        <li>Open Honkai: Star Rail &rarr; navigate to the specific banner you want to log &rarr; open its <strong>Warp History</strong> records once so the fresh <code>getGachaLog</code> URL is written to your local game cache.</li>
+                        <li>Find your <code>getGachaLog</code> URL from the game web cache log (or use your own inspected web link).</li>
+                        <li>Have your AI (ChatGPT, Claude, Gemini) audit your local Python script before running to confirm it contains zero malicious payloads and only communicates with official Hoyoverse API endpoints.</li>
+                        <li>Run the script locally in your terminal. It saves clean, duplicate-free <code>hsr_UID.json</code> files directly to your folder.</li>
+                        <li>Drop or upload the resulting JSON into Gacha Hub to view your stats instantly!</li>
+                    </ol>
+
+                    <h5 style="color:#ffffff; margin:18px 0 6px 0; font-size:0.95rem;">📋 Clean Reference Python Fetcher Script:</h5>
+                    <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:8px;">You can copy this safe script, inspect it with any AI, and run it locally with <code>python updater.py</code>:</p>
+                    <div class="code-box">
+<button class="copy-code-btn" onclick="copyPythonScript(this)">📋 Copy Python Code</button><code id="python-script-text">import requests
+import json
+import os
+import time
+import random
+from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
+
+def get_local_data(filename):
+    if not os.path.exists(filename): return [], set()
+    try:
+        with open(filename, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        return data, set(item['id'] for item in data if 'id' in item)
+    except: return [], set()
+
+def prepare_mimic_params(url_str):
+    parsed = urlparse(url_str)
+    query_params = parse_qs(parsed.query)
+    clean = query_params.copy()
+    for k in ['page', 'size', 'begin_id', 'end_id', 'gacha_type']:
+        if k in clean: del clean[k]
+    return parsed, clean
+
+def fetch_gacha_type(base_components, base_params, gacha_type, type_name, existing_ids, full_list):
+    print(f"\nScanning {type_name} (Type {gacha_type})...")
+    current_end_id = "0"
+    page_num, new_items_count = 1, 0
+    scheme, netloc, path, _, _, fragment = base_components
+    
+    while True:
+        p = base_params.copy()
+        p['gacha_type'] = [str(gacha_type)]
+        p['size'] = ['5']
+        p['end_id'] = [current_end_id]
+        
+        target = urlunparse((scheme, netloc, path, '', urlencode(p, doseq=True), fragment))
+        try:
+            if page_num > 1: time.sleep(random.uniform(0.5, 1.2))
+            res = requests.get(target).json()
+            if res.get('retcode') != 0:
+                print(f"   Note/Notice: {res.get('message')}")
+                break
+            items = res.get('data', {}).get('list', [])
+            if not items:
+                print("   -> Reached end of online history.")
+                break
+                
+            batch = []
+            stop_early = False
+            for it in items:
+                if it['id'] in existing_ids:
+                    stop_early = True
+                else:
+                    it['gacha_type'] = str(gacha_type)
+                    batch.append(it)
+                    existing_ids.add(it['id'])
+                    
+            if batch:
+                print(f"   Page {page_num}: Found {len(batch)} new items...")
+                full_list.extend(batch)
+                new_items_count += len(batch)
+                current_end_id = items[-1]['id']
+                page_num += 1
+            else:
+                break
+            if stop_early:
+                print("   -> Reached previously archived local records.")
+                break
+        except Exception as e:
+            print(f"   Fetch Error: {e}")
+            break
+    return new_items_count
+
+def main():
+    print("=== HSR Warp History Local Fetcher ===")
+    print("Note: If fetching Collab/Special warps, ensure you clicked that specific banner history in-game first!")
+    check_collab = input("Check Collab Banners? (y/n) [default: n]: ").lower().strip() == 'y'
+    url_input = input("Paste your getGachaLog URL: ").strip().replace('"', '')
+    if not url_input: return
+    
+    parsed, mimic = prepare_mimic_params(url_input)
+    # Detect UID
+    uid = "Unknown"
+    for gt in (['21', '11', '1', '12'] if check_collab else ['11', '1', '12']):
+        try:
+            t_p = mimic.copy()
+            t_p['gacha_type'] = [gt]
+            t_p['size'] = ['5']
+            r = requests.get(urlunparse((parsed.scheme, parsed.netloc, parsed.path, '', urlencode(t_p, doseq=True), parsed.fragment))).json()
+            lst = r.get('data', {}).get('list', [])
+            if lst and lst[0].get('uid'):
+                uid = str(lst[0]['uid'])
+                print(f"-> Detected Account UID: {uid}")
+                break
+        except: pass
+
+    filename = f"hsr_{uid}.json"
+    full_data, existing_ids = get_local_data(filename)
+    print(f"-> Local file {filename} loaded with {len(full_data)} records.")
+    
+    banners = [(11, "Character Event"), (12, "Light Cone Event"), (1, "Stellar Warp")]
+    if check_collab:
+        banners.insert(1, (21, "Collab Character"))
+        banners.insert(3, (22, "Collab Light Cone"))
+        
+    total_added = sum(fetch_gacha_type(parsed, mimic, b_id, b_name, existing_ids, full_data) for b_id, b_name in banners)
+    if total_added > 0:
+        full_data.sort(key=lambda x: int(x.get('id', 0)), reverse=True)
+        with open(filename, 'w', encoding='utf-8') as f:
+            json.dump(full_data, f, indent=2, ensure_ascii=False)
+        print(f"\n[SUCCESS] Saved {total_added} new items to {filename}!")
+    else:
+        print("\n[UP TO DATE] No new items found.")
+
+if __name__ == '__main__':
+    main()</code></div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- Modal for Quick JSON Paste -->
+<div id="paste-modal" class="modal-overlay" onclick="closePasteModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <h3 class="modal-title">📋 Direct JSON Paste</h3>
+            <button class="modal-close" onclick="closePasteModal()">&times;</button>
+        </div>
+        <textarea id="modal-paste-text" class="paste-textarea" style="height:200px;" placeholder='[{"gacha_type":"11","id":"1","name":"Acheron","item_type":"Character","rank_type":"5","time":"2024-03-27 12:00:00"}]'></textarea>
+        <div class="paste-controls" style="margin-top:14px; justify-content:space-between;">
+            <input type="text" id="modal-paste-uid" class="uid-input" placeholder="Account UID (e.g. 800123456)">
+            <div>
+                <button class="btn-secondary" onclick="closePasteModal()">Cancel</button>
+                <button class="btn-action" onclick="importFromModal()">Import Data</button>
+            </div>
+        </div>
     </div>
 </div>
 
+<!-- Floating SVG Tooltip -->
+<div id="svg-tooltip"></div>
+<!-- Toast Alert -->
+<div id="toast">Copied to clipboard! ✓</div>
+
 <script>
     // ==========================================
-    // 1. NAVIGATION & HASH ROUTING
+    // 1. GAME CONSTANTS & CONFIGURATION
+    // ==========================================
+    const HSR_CONFIG = {
+        CHAR_HARD: 90,
+        CHAR_SOFT: 74,
+        LC_HARD: 80,
+        LC_SOFT: 66,
+        DEP_HARD: 50,
+        // The Permanent Original 7 Standard Characters (always off-rate on limited event banners)
+        PERM_7_CHARS: ["Himeko", "Welt", "Bronya", "Gepard", "Clara", "Yanqing", "Bailu"],
+        // Expanded 50/50 Loss Pool: Retired limited characters and their retirement effective dates
+        // If pulled ON or AFTER this datetime, they are considered a 50/50 off-banner loss.
+        // If pulled BEFORE this datetime (during their original/rerun rate-ups), they are recorded as a WIN.
+        EXPANDED_LOSS_CHARS: {
+            "Seele": "2025-04-09 06:00:00",       // Added in v3.2
+            "Blade": "2025-04-09 06:00:00",       // Added in v3.2
+            "Fu Xuan": "2025-04-09 06:00:00",     // Added in v3.2
+            "Silver Wolf": "2026-04-22 06:00:00", // Added in v4.2
+            "Argenti": "2026-04-22 06:00:00",     // Added in v4.2
+            "Yunli": "2026-04-22 06:00:00"        // Added in v4.2
+        },
+        STD_LCS: ["Night on the Milky Way", "In the Name of the World", "But the Battle Isn't Over", "Moment of Victory", "Something Irreplaceable", "Sleep Like the Dead", "Time Waits for No One"]
+    };
+
+    function isCharacterOffBannerLoss(name, pullTimeStr) {
+        if (HSR_CONFIG.PERM_7_CHARS.includes(name)) return true;
+        const retiredDate = HSR_CONFIG.EXPANDED_LOSS_CHARS[name];
+        if (retiredDate) {
+            if (!pullTimeStr) return true;
+            return pullTimeStr >= retiredDate;
+        }
+        return false;
+    }
+
+    const EF_CONFIG = {
+        CHAR_HARD: 80,
+        WEAPON_HARD: 40,
+        CHAR_BANNERS: { 'The Floaty Messenger': 'Gilberta', 'Scars of the Forge': 'Laevatain' },
+        WEAPON_BANNERS: { 'Cosmic Voice Issue': 'Dreams of the Starry Beach', 'Solid Ice Issue': 'Khravengger' },
+        WEAPON_LADDER: [[100, "Weapon Selector"], [180, "Featured Guarantee"], [260, "Weapon Selector"], [340, "Featured Guarantee"]]
+    };
+
+    const tableFilters = {};
+
+    // ==========================================
+    // 2. NAVIGATION & ROUTING
     // ==========================================
     function switchTab(tabId) {
         document.querySelectorAll('.app-view').forEach(v => v.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById(tabId).classList.add('active');
+        
+        const targetView = document.getElementById(tabId);
+        if (targetView) targetView.classList.add('active');
+        
         const activeBtn = document.querySelector(`button[onclick="switchTab('${tabId}')"]`);
         if (activeBtn) activeBtn.classList.add('active');
 
-        if (tabId === 'hsr-view') window.history.replaceState(null, null, ' '); 
-        if (tabId === 'endfield-view') window.history.replaceState(null, null, '#endfield');
+        if (tabId === 'hsr-view') window.history.replaceState(null, null, ' ');
+        else if (tabId === 'endfield-view') window.history.replaceState(null, null, '#endfield');
+        else if (tabId === 'guide-view') window.history.replaceState(null, null, '#guide');
     }
 
     function switchUIDTab(uid) {
         document.querySelectorAll('.account-view').forEach(v => v.classList.remove('active'));
         document.querySelectorAll('.uid-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById(`acc-${uid}`).classList.add('active');
-        document.getElementById(`btn-${uid}`).classList.add('active');
+        
+        const targetView = document.getElementById(`acc-${uid}`);
+        const targetBtn = document.getElementById(`btn-${uid}`);
+        if (targetView) targetView.classList.add('active');
+        if (targetBtn) targetBtn.classList.add('active');
     }
 
-    function clearData(storageKey) {
-        if(confirm("Are you sure you want to wipe this local data?")) {
-            localStorage.removeItem(storageKey);
-            location.reload();
+    function switchBannerSubtab(uid, bannerKey) {
+        const accView = document.getElementById(`acc-${uid}`);
+        if (!accView) return;
+        accView.querySelectorAll('.banner-view-panel').forEach(p => p.classList.remove('active'));
+        accView.querySelectorAll('.subtab-btn').forEach(b => b.classList.remove('active'));
+
+        const targetPanel = document.getElementById(`panel-${uid}-${bannerKey}`);
+        const targetBtn = document.getElementById(`subtab-${uid}-${bannerKey}`);
+        if (targetPanel) targetPanel.classList.add('active');
+        if (targetBtn) targetBtn.classList.add('active');
+    }
+
+    function updateDropZoneVisibility() {
+        const dropContainer = document.getElementById('drop-zone-container');
+        if (!dropContainer) return;
+        
+        let hasHsr = false, hasEndfield = false;
+        try {
+            const hsr = JSON.parse(localStorage.getItem('hsr_accounts') || '{}');
+            hasHsr = Object.keys(hsr).length > 0;
+        } catch(e) {}
+        try {
+            const ef = JSON.parse(localStorage.getItem('endfield_data') || '{}');
+            hasEndfield = (ef.characters && ef.characters.length > 0) || (ef.weapons && ef.weapons.length > 0);
+        } catch(e) {}
+
+        if (hasHsr || hasEndfield) {
+            dropContainer.classList.add('compact-mode');
+        } else {
+            dropContainer.classList.remove('compact-mode');
         }
     }
 
     window.onload = () => {
         let hash = window.location.hash;
         if (hash === '#endfield') switchTab('endfield-view');
+        else if (hash === '#guide') switchTab('guide-view');
         else switchTab('hsr-view');
 
         const savedHSR = localStorage.getItem('hsr_accounts');
-        if (savedHSR) { try { buildHSR(JSON.parse(savedHSR)); } catch (err) {} }
+        if (savedHSR) {
+            try { buildHSR(JSON.parse(savedHSR)); } catch (err) { console.error(err); }
+        }
         
         const savedEndfield = localStorage.getItem('endfield_data');
-        if (savedEndfield) { try { buildEndfield(JSON.parse(savedEndfield)); } catch (err) {} }
+        if (savedEndfield) {
+            try { buildEndfield(JSON.parse(savedEndfield)); } catch (err) { console.error(err); }
+        }
+
+        updateDropZoneVisibility();
+        setupSVGTooltips();
     };
 
     // ==========================================
-    // 2. FILE DRAG & DROP MULTI-ROUTER
+    // 3. TOAST, CLIPBOARD, MODAL & TOOLTIPS
+    // ==========================================
+    function showToast(msg) {
+        const toast = document.getElementById('toast');
+        toast.innerHTML = msg;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 2600);
+    }
+
+    function copyToClipboard(text, btnElement) {
+        navigator.clipboard.writeText(text).then(() => {
+            if (btnElement) {
+                const orig = btnElement.innerHTML;
+                btnElement.innerHTML = "Copied! ✓";
+                setTimeout(() => btnElement.innerHTML = orig, 2000);
+            }
+            showToast("Copied to clipboard! ✓");
+        }).catch(() => {
+            showToast("Failed to copy. Please select and copy manually.");
+        });
+    }
+
+    function copyAIPrompt(btn) {
+        const code = document.getElementById('ai-prompt-text').innerText;
+        copyToClipboard(code, btn);
+    }
+
+    function copyPythonScript(btn) {
+        const code = document.getElementById('python-script-text').innerText;
+        copyToClipboard(code, btn);
+    }
+
+    function openPasteModal() { document.getElementById('paste-modal').classList.add('active'); }
+    function closePasteModal(e) {
+        if (!e || e.target.id === 'paste-modal' || e.target.classList.contains('modal-close') || e.target.innerText === 'Cancel') {
+            document.getElementById('paste-modal').classList.remove('active');
+        }
+    }
+
+    function setupSVGTooltips() {
+        const tip = document.getElementById('svg-tooltip');
+        document.addEventListener('mouseover', e => {
+            if (e.target.classList.contains('chart-point') && e.target.dataset.tip) {
+                tip.innerHTML = e.target.dataset.tip;
+                tip.style.display = 'block';
+            }
+        });
+        document.addEventListener('mousemove', e => {
+            if (tip.style.display === 'block') {
+                tip.style.left = e.clientX + 'px';
+                tip.style.top = e.clientY + 'px';
+            }
+        });
+        document.addEventListener('mouseout', e => {
+            if (e.target.classList.contains('chart-point')) {
+                tip.style.display = 'none';
+            }
+        });
+    }
+
+    // ==========================================
+    // 4. DATA IMPORT & MANAGEMENT
     // ==========================================
     const dropZone = document.getElementById('drop-zone');
     ['dragover', 'dragleave', 'drop'].forEach(evt => dropZone.addEventListener(evt, e => e.preventDefault()));
     dropZone.addEventListener('dragover', () => dropZone.classList.add('dragover'));
     dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
-    dropZone.addEventListener('drop', e => { dropZone.classList.remove('dragover'); handleFiles(e.dataTransfer.files); });
+    dropZone.addEventListener('drop', e => { 
+        dropZone.classList.remove('dragover'); 
+        handleFiles(e.dataTransfer.files); 
+    });
     document.getElementById('file-input').addEventListener('change', e => handleFiles(e.target.files));
 
     function handleFiles(files) {
+        if (!files || !files.length) return;
         for (let file of files) {
             if (file.name.endsWith('.json')) {
                 let reader = new FileReader();
                 reader.onload = e => {
-                    let data;
-                    try { data = JSON.parse(e.target.result); } 
-                    catch (err) { alert(`Error parsing JSON file: ${file.name}.`); return; }
-                    
-                    try {
-                        let fname = file.name.toLowerCase();
-                        if(fname.startsWith('hsr_')) { 
-                            let uidMatch = file.name.match(/\d+/);
-                            let uid = uidMatch ? uidMatch[0] : "Unknown";
-                            let accountsDict = JSON.parse(localStorage.getItem('hsr_accounts')) || {};
-                            accountsDict[uid] = data;
-                            localStorage.setItem('hsr_accounts', JSON.stringify(accountsDict)); 
-                            buildHSR(accountsDict); 
-                            switchTab('hsr-view'); 
-                        } 
-                        else if(fname.includes('endfield')) { 
-                            let efData = JSON.parse(localStorage.getItem('endfield_data')) || { characters: [], weapons: [] };
-                            if (fname.includes('character')) efData.characters = data;
-                            else if (fname.includes('weapon')) efData.weapons = data;
-                            else {
-                                if (data[0] && data[0].charName) efData.characters = data;
-                                else efData.weapons = data;
-                            }
-                            localStorage.setItem('endfield_data', JSON.stringify(efData));
-                            buildEndfield(efData);
-                            switchTab('endfield-view'); 
-                        }
-                    } catch (err) { console.error(err); alert(`Failed to process ${file.name}`); }
+                    let parsedData;
+                    try { parsedData = JSON.parse(e.target.result); }
+                    catch (err) { alert(`Error parsing JSON in ${file.name}.`); return; }
+                    processImportedData(parsedData, file.name);
                 };
                 reader.readAsText(file);
+            } else {
+                alert(`Please upload a valid .json file. (Received: ${file.name})`);
             }
         }
     }
 
-    // ==========================================
-    // 3. ENDFIELD DASHBOARD ENGINE
-    // ==========================================
-    const EF_CONFIG = {
-        CHAR_HARD: 80, WEAPON_HARD: 40,
-        CHAR_BANNERS: { 'The Floaty Messenger': 'Gilberta', 'Scars of the Forge': 'Laevatain' },
-        WEAPON_BANNERS: { 'Cosmic Voice Issue': 'Dreams of the Starry Beach', 'Solid Ice Issue': 'Khravengger' },
-        WEAPON_LADDER: [[100, "Weapon Selector"], [180, "Featured Guarantee"], [260, "Weapon Selector"], [340, "Featured Guarantee"]]
-    };
+    function processImportedData(data, sourceName = "", manualUid = "") {
+        try {
+            const fname = sourceName.toLowerCase();
+            if (fname.includes('endfield') || (Array.isArray(data) && data[0] && (data[0].charName || data[0].weaponName || data[0].poolId))) {
+                let efData = JSON.parse(localStorage.getItem('endfield_data')) || { characters: [], weapons: [] };
+                if (fname.includes('character')) efData.characters = data;
+                else if (fname.includes('weapon')) efData.weapons = data;
+                else {
+                    if (Array.isArray(data) && data[0] && data[0].charName) efData.characters = data;
+                    else if (Array.isArray(data) && data[0] && data[0].weaponName) efData.weapons = data;
+                }
+                localStorage.setItem('endfield_data', JSON.stringify(efData));
+                buildEndfield(efData);
+                updateDropZoneVisibility();
+                switchTab('endfield-view');
+                showToast("Endfield data imported successfully! 🔶");
+                return;
+            }
 
+            if (!Array.isArray(data) && typeof data === 'object') {
+                const keys = Object.keys(data);
+                if (keys.length > 0 && Array.isArray(data[keys[0]])) {
+                    let accountsDict = JSON.parse(localStorage.getItem('hsr_accounts')) || {};
+                    Object.assign(accountsDict, data);
+                    localStorage.setItem('hsr_accounts', JSON.stringify(accountsDict));
+                    buildHSR(accountsDict);
+                    updateDropZoneVisibility();
+                    switchTab('hsr-view');
+                    showToast(`Imported backup with ${keys.length} HSR account(s)! ⭐`);
+                    return;
+                }
+            }
+
+            if (Array.isArray(data)) {
+                let uid = manualUid.trim();
+                if (!uid) {
+                    if (data[0] && data[0].uid) uid = String(data[0].uid);
+                    else {
+                        let uidMatch = sourceName.match(/\d+/);
+                        uid = uidMatch ? uidMatch[0] : "Account_1";
+                    }
+                }
+                let accountsDict = JSON.parse(localStorage.getItem('hsr_accounts')) || {};
+                accountsDict[uid] = data;
+                localStorage.setItem('hsr_accounts', JSON.stringify(accountsDict));
+                buildHSR(accountsDict);
+                updateDropZoneVisibility();
+                switchUIDTab(uid);
+                switchTab('hsr-view');
+                showToast(`Loaded ${data.length} warps for UID: ${uid} ⭐`);
+                return;
+            }
+
+            alert("Unrecognized JSON structure. Please check the Tutorial tab for valid schema formats.");
+        } catch (err) {
+            console.error(err);
+            alert("Failed to process data. Check console for details.");
+        }
+    }
+
+    function importFromGuide() {
+        const raw = document.getElementById('guide-paste-text').value.trim();
+        const uid = document.getElementById('guide-paste-uid').value.trim();
+        if (!raw) { alert("Please paste your JSON first."); return; }
+        try {
+            const data = JSON.parse(raw);
+            processImportedData(data, "pasted_input.json", uid);
+        } catch (err) { alert("Invalid JSON format! Please check syntax brackets."); }
+    }
+
+    function importFromModal() {
+        const raw = document.getElementById('modal-paste-text').value.trim();
+        const uid = document.getElementById('modal-paste-uid').value.trim();
+        if (!raw) { alert("Please paste your JSON first."); return; }
+        try {
+            const data = JSON.parse(raw);
+            processImportedData(data, "pasted_modal.json", uid);
+            closePasteModal();
+        } catch (err) { alert("Invalid JSON format! Please verify your JSON string."); }
+    }
+
+    function clearData(storageKey) {
+        const name = storageKey === 'hsr_accounts' ? 'Honkai: Star Rail' : 'Endfield';
+        if (confirm(`Are you sure you want to wipe all local ${name} data?`)) {
+            localStorage.removeItem(storageKey);
+            location.reload();
+        }
+    }
+
+    function removeSingleUID(uid) {
+        if (confirm(`Remove UID ${uid} from local storage?`)) {
+            let accountsDict = JSON.parse(localStorage.getItem('hsr_accounts')) || {};
+            delete accountsDict[uid];
+            localStorage.setItem('hsr_accounts', JSON.stringify(accountsDict));
+            buildHSR(accountsDict);
+            showToast(`UID ${uid} removed.`);
+        }
+    }
+
+    function exportUID(uid) {
+        let accountsDict = JSON.parse(localStorage.getItem('hsr_accounts')) || {};
+        if (!accountsDict[uid]) return;
+        const blob = new Blob([JSON.stringify(accountsDict[uid], null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `hsr_${uid}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast(`Exported hsr_${uid}.json! 📥`);
+    }
+
+    function exportAllHSR() {
+        let accountsDict = JSON.parse(localStorage.getItem('hsr_accounts')) || {};
+        if (!Object.keys(accountsDict).length) { alert("No HSR data found to export."); return; }
+        const blob = new Blob([JSON.stringify(accountsDict, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `hsr_accounts_backup.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast("Exported all HSR accounts backup! 💾");
+    }
+
+    // ==========================================
+    // 5. SAMPLE DEMO DATA GENERATOR
+    // ==========================================
+    function loadDemoData() {
+        let pulls = [];
+        let idCounter = 1710000000000000;
+        const fourStarPool = ["Gallagher", "Pela", "Tingyun", "Natasha", "Guinaifen", "Lynx", "Xueyi", "Moze", "Asta", "Serval"];
+        let fourIdx = 0;
+
+        const addPulls = (gachaType, count, name, rank, time, isLc = false) => {
+            let since4 = 0;
+            for (let i = 0; i < count - 1; i++) {
+                idCounter++;
+                since4++;
+                if (since4 >= 9) {
+                    pulls.push({
+                        gacha_type: gachaType,
+                        id: String(idCounter),
+                        name: fourStarPool[fourIdx % fourStarPool.length],
+                        item_type: "Character",
+                        rank_type: "4",
+                        time: time,
+                        uid: "800888888"
+                    });
+                    fourIdx++;
+                    since4 = 0;
+                } else {
+                    pulls.push({
+                        gacha_type: gachaType,
+                        id: String(idCounter),
+                        name: isLc ? "Passkey" : "Darting Arrow",
+                        item_type: "Light Cone",
+                        rank_type: "3",
+                        time: time,
+                        uid: "800888888"
+                    });
+                }
+            }
+            idCounter++;
+            pulls.push({
+                gacha_type: gachaType,
+                id: String(idCounter),
+                name: name,
+                item_type: rank === "4" ? "Character" : (isLc ? "Light Cone" : "Character"),
+                rank_type: rank,
+                time: time,
+                uid: "800888888"
+            });
+        };
+
+        // Departure Warp (50 pulls)
+        addPulls("2", 50, "Welt", "5", "2023-04-26 12:00:00");
+
+        // Standard Stellar Warp ('1')
+        addPulls("1", 78, "Clara", "5", "2024-01-10 12:00:00");
+        addPulls("1", 79, "Something Irreplaceable", "5", "2024-04-15 12:00:00", true);
+        addPulls("1", 52, "Passkey", "3", "2024-09-01 12:00:00", true);
+
+        // Character Event Warp ('11')
+        addPulls("11", 78, "Bronya", "5", "2024-03-27 12:15:00"); // 78 pity (loss)
+        addPulls("11", 75, "Acheron", "5", "2024-03-27 12:30:00"); // 75 pity (win)
+        addPulls("11", 34, "Robin", "5", "2024-05-08 13:00:00"); // 34 pity (early win)
+        addPulls("11", 8, "Firefly", "5", "2024-06-19 14:00:00"); // 8 pity (god / top 1%)
+        addPulls("11", 81, "Gepard", "5", "2025-01-15 10:00:00"); // 81 pity (loss)
+        addPulls("11", 77, "Feixiao", "5", "2025-02-01 11:00:00"); // 77 pity (win)
+        addPulls("11", 42, "Arrows", "3", "2025-03-01 15:00:00", true); // current pity 42
+
+        // Light Cone Event Warp ('12')
+        addPulls("12", 68, "Along the Passing Shore", "5", "2024-03-28 12:00:00", true);
+        addPulls("12", 67, "Night on the Milky Way", "5", "2024-05-10 12:00:00", true);
+        addPulls("12", 45, "Flowing Nightglow", "5", "2024-05-10 12:30:00", true);
+        addPulls("12", 18, "Collapsing Sky", "3", "2024-06-20 12:00:00", true);
+
+        let accountsDict = JSON.parse(localStorage.getItem('hsr_accounts')) || {};
+        accountsDict["800888888 (Demo)"] = pulls;
+        localStorage.setItem('hsr_accounts', JSON.stringify(accountsDict));
+        buildHSR(accountsDict);
+        updateDropZoneVisibility();
+        switchUIDTab("800888888 (Demo)");
+        switchTab('hsr-view');
+        showToast("✨ Sample HSR demo account loaded!");
+    }
+
+    // ==========================================
+    // 6. TWO-SIDED PITY DISTRIBUTION (REVERSED 86+ -> 1-10 & LTR GRADIENT)
+    // ==========================================
+    function renderBiDirectionalDistributionSVG(history, isLc, isEvent, chartId = "main") {
+        // Reversed order: 86+ (Hard) on the left down to 1-10 (Top 1%) on the right
+        const buckets = [
+            { label: (isLc ? "80" : "86+"), name: "Hard", min: (isLc ? 80 : 86), max: 100, wins: 0, losses: 0, std: 0 },
+            { label: (isLc ? "66-79" : "74-85"), name: "Soft", min: (isLc ? 66 : 74), max: (isLc ? 79 : 85), wins: 0, losses: 0, std: 0 },
+            { label: "41-73", name: "Early", min: 41, max: (isLc ? 65 : 73), wins: 0, losses: 0, std: 0 },
+            { label: "11-40", name: "Lucky", min: 11, max: 40, wins: 0, losses: 0, std: 0 },
+            { label: "1-10", name: "Top 1%", min: 1, max: 10, wins: 0, losses: 0, std: 0 }
+        ];
+
+        const ssr = history.filter(x => x.rank == '5');
+        if (!ssr.length) return `<div class="chart-empty">No 5★ drops recorded yet</div>`;
+
+        ssr.forEach(item => {
+            for (let b of buckets) {
+                if (item.pity >= b.min && item.pity <= b.max) {
+                    if (item.is_win === true) b.wins++;
+                    else if (item.is_win === false) b.losses++;
+                    else b.std++;
+                    break;
+                }
+            }
+        });
+
+        const width = 450, height = 210;
+        const padL = 40, padR = 20;
+        const chartW = width - padL - padR;
+        const midY = 105;
+        const armH = 70;
+
+        const maxVal = Math.max(1, ...buckets.map(b => Math.max(b.wins, b.losses, b.std)));
+        const barW = chartW / buckets.length;
+
+        let bars = buckets.map((b, i) => {
+            const x = padL + i * barW + 8;
+            const actualW = barW - 16;
+            const centerX = x + actualW / 2;
+
+            let res = "";
+
+            // Top bar: Wins (or Standard Drops) with Left-to-Right Gradient
+            const topCount = isEvent ? b.wins : (b.wins + b.std);
+            if (topCount > 0) {
+                const h = Math.max(4, (topCount / maxVal) * armH);
+                const y = midY - h;
+                const tip = `${b.name} (${b.label}): ${topCount} Win(s)`;
+                res += `
+                <rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${actualW.toFixed(1)}" height="${h.toFixed(1)}" rx="3" fill="url(#win-ltr-${chartId})" opacity="0.95" class="chart-point" data-tip="${tip}" />
+                <text x="${centerX.toFixed(1)}" y="${(y - 4).toFixed(1)}" fill="#38bdf8" font-size="10" font-weight="bold" text-anchor="middle" font-family="monospace">${topCount}</text>
+                `;
+            }
+
+            // Bottom bar: 50/50 Losses with Left-to-Right Gradient
+            if (isEvent && b.losses > 0) {
+                const h = Math.max(4, (b.losses / maxVal) * armH);
+                const y = midY;
+                const tip = `${b.name} (${b.label}): ${b.losses} Loss(es)`;
+                res += `
+                <rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${actualW.toFixed(1)}" height="${h.toFixed(1)}" rx="3" fill="url(#loss-ltr-${chartId})" opacity="0.9" class="chart-point" data-tip="${tip}" />
+                <text x="${centerX.toFixed(1)}" y="${(y + h + 11).toFixed(1)}" fill="#f87171" font-size="10" font-weight="bold" text-anchor="middle" font-family="monospace">${b.losses}</text>
+                `;
+            }
+
+            // X-Axis bracket label
+            res += `
+            <text x="${centerX.toFixed(1)}" y="${(height - 4).toFixed(1)}" fill="#94a3b8" font-size="9" text-anchor="middle">${b.label}</text>
+            `;
+
+            return res;
+        }).join('');
+
+        return `<svg viewBox="0 0 ${width} ${height}" class="chart-svg" style="width:100%;height:100%;">
+            <defs>
+                <linearGradient id="win-ltr-${chartId}" gradientUnits="userSpaceOnUse" x1="${padL}" y1="0" x2="${width - padR}" y2="0">
+                    <stop offset="0%" stop-color="#0284c7" />
+                    <stop offset="50%" stop-color="#38bdf8" />
+                    <stop offset="100%" stop-color="#34d399" />
+                </linearGradient>
+                <linearGradient id="loss-ltr-${chartId}" gradientUnits="userSpaceOnUse" x1="${padL}" y1="0" x2="${width - padR}" y2="0">
+                    <stop offset="0%" stop-color="#b91c1c" />
+                    <stop offset="50%" stop-color="#ef4444" />
+                    <stop offset="100%" stop-color="#fb923c" />
+                </linearGradient>
+            </defs>
+            <line x1="${padL}" y1="${midY}" x2="${width - padR}" y2="${midY}" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" />
+            
+            ${isEvent ? `
+            <text x="${padL - 6}" y="${midY - 8}" fill="#34d399" font-size="9" font-weight="bold" text-anchor="end">▲ WIN</text>
+            <text x="${padL - 6}" y="${midY + 15}" fill="#f87171" font-size="9" font-weight="bold" text-anchor="end">▼ LOSS</text>
+            ` : `
+            <text x="${padL - 6}" y="${midY - 8}" fill="#38bdf8" font-size="9" font-weight="bold" text-anchor="end">DROPS</text>
+            `}
+            ${bars}
+        </svg>`;
+    }
+
+    function renderDonutSVG(wins, losses, label = "Win Rate") {
+        const total = wins + losses;
+        if (total === 0) return `<div class="chart-empty">No 50/50 recorded yet</div>`;
+
+        const width = 280, height = 210, cx = 140, cy = 95, r = 58, strokeW = 20;
+        const rate = ((wins / total) * 100).toFixed(1);
+        const circ = 2 * Math.PI * r;
+        const winOffset = circ * (1 - (wins / total));
+
+        return `<svg viewBox="0 0 ${width} ${height}" class="chart-svg" style="width:100%;height:100%;">
+            <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#f87171" stroke-width="${strokeW}" opacity="0.85" />
+            <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#34d399" stroke-width="${strokeW}" 
+                stroke-dasharray="${circ}" stroke-dashoffset="${winOffset}" 
+                transform="rotate(-90 ${cx} ${cy})" stroke-linecap="round" />
+            <text x="${cx}" y="${cy - 4}" fill="#ffffff" font-size="22" font-weight="800" text-anchor="middle" font-family="monospace">${rate}%</text>
+            <text x="${cx}" y="${cy + 15}" fill="#94a3b8" font-size="10" text-anchor="middle" text-transform="uppercase" letter-spacing="0.05em">${label}</text>
+            <text x="${cx}" y="${height - 10}" fill="#94a3b8" font-size="11" text-anchor="middle">
+                <tspan fill="#34d399" font-weight="bold">● ${wins} Wins</tspan> &nbsp;|&nbsp; 
+                <tspan fill="#f87171" font-weight="bold">● ${losses} Losses</tspan>
+            </text>
+        </svg>`;
+    }
+
+    function renderSmoothMonthlyVolumeSVG(items, chartId = "std") {
+        if (!items || !items.length) return `<div class="chart-empty">No activity records recorded</div>`;
+        const months = {};
+        items.forEach(it => {
+            const m = it.time ? it.time.substring(0, 7) : "Unknown";
+            months[m] = (months[m] || 0) + 1;
+        });
+
+        // Retrieve up to 12 months (full annual window)
+        const sortedMonths = Object.keys(months).sort().slice(-12);
+        if (!sortedMonths.length) return `<div class="chart-empty">No activity records</div>`;
+
+        // If only 1 month exists, pad with previous month at 0 for a curve
+        let dataPoints = sortedMonths.map(m => ({ label: m, count: months[m] }));
+        if (dataPoints.length === 1) {
+            dataPoints.unshift({ label: "", count: 0 });
+        }
+
+        const width = 880, height = 220;
+        const padL = 45, padR = 30, padT = 30, padB = 35;
+        const chartW = width - padL - padR;
+        const chartH = height - padT - padB;
+        const maxPulls = Math.max(1, ...dataPoints.map(d => d.count));
+
+        const coords = dataPoints.map((d, i) => {
+            const x = padL + (i / (dataPoints.length - 1)) * chartW;
+            const y = padT + chartH - (d.count / maxPulls) * chartH;
+            return { x, y, ...d };
+        });
+
+        // Build smooth Catmull-Rom / Bézier spline path
+        let pathD = `M ${coords[0].x.toFixed(1)},${coords[0].y.toFixed(1)}`;
+        for (let i = 0; i < coords.length - 1; i++) {
+            const p0 = coords[i === 0 ? 0 : i - 1];
+            const p1 = coords[i];
+            const p2 = coords[i + 1];
+            const p3 = coords[i + 2] || p2;
+
+            const cp1x = p1.x + (p2.x - p0.x) / 6;
+            const cp1y = p1.y + (p2.y - p0.y) / 6;
+            const cp2x = p2.x - (p3.x - p1.x) / 6;
+            const cp2y = p2.y - (p3.y - p1.y) / 6;
+
+            pathD += ` C ${cp1x.toFixed(1)},${cp1y.toFixed(1)} ${cp2x.toFixed(1)},${cp2y.toFixed(1)} ${p2.x.toFixed(1)},${p2.y.toFixed(1)}`;
+        }
+
+        // Fill area under curve
+        const areaD = `${pathD} L ${coords[coords.length - 1].x.toFixed(1)},${(padT + chartH).toFixed(1)} L ${coords[0].x.toFixed(1)},${(padT + chartH).toFixed(1)} Z`;
+
+        // Generate glowing nodes and labels
+        let nodesHtml = coords.map(p => {
+            if (!p.label) return "";
+            const monthText = p.label.length >= 7 ? p.label.substring(2) : p.label;
+            const tip = `${p.label}: ${p.count} warp(s)`;
+            return `
+            <circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="4" fill="#38bdf8" stroke="#070a13" stroke-width="2" class="chart-point" data-tip="${tip}" />
+            <text x="${p.x.toFixed(1)}" y="${(p.y - 10).toFixed(1)}" fill="#ffffff" font-size="10" font-weight="bold" font-family="monospace" text-anchor="middle">${p.count}</text>
+            <text x="${p.x.toFixed(1)}" y="${(padT + chartH + 20).toFixed(1)}" fill="#94a3b8" font-size="10" font-family="monospace" text-anchor="middle">${monthText}</text>
+            `;
+        }).join('');
+
+        return `<svg viewBox="0 0 ${width} ${height}" class="chart-svg" style="width:100%;height:100%;">
+            <defs>
+                <linearGradient id="curve-grad-${chartId}" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.35" />
+                    <stop offset="100%" stop-color="#38bdf8" stop-opacity="0.0" />
+                </linearGradient>
+            </defs>
+            <line x1="${padL}" y1="${padT + chartH}" x2="${width - padR}" y2="${padT + chartH}" stroke="rgba(255,255,255,0.12)" stroke-width="1.5" />
+            <line x1="${padL}" y1="${padT}" x2="${padL}" y2="${padT + chartH}" stroke="rgba(255,255,255,0.12)" stroke-width="1.5" />
+            <path d="${areaD}" fill="url(#curve-grad-${chartId})" />
+            <path d="${pathD}" fill="none" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round" />
+            ${nodesHtml}
+        </svg>`;
+    }
+
+    function renderMonthlyActivitySVG(items) {
+        if (!items || !items.length) return `<div class="chart-empty">No activity records</div>`;
+        const months = {};
+        items.forEach(it => {
+            const m = it.time ? it.time.substring(0, 7) : "Unknown";
+            months[m] = (months[m] || 0) + 1;
+        });
+
+        const sortedMonths = Object.keys(months).sort().slice(-8);
+        if (!sortedMonths.length) return `<div class="chart-empty">No activity records</div>`;
+
+        const width = 380, height = 210, padL = 30, padR = 20, padT = 30, padB = 30;
+        const chartW = width - padL - padR;
+        const chartH = height - padT - padB;
+        const maxPulls = Math.max(1, ...sortedMonths.map(m => months[m]));
+        const barW = chartW / sortedMonths.length;
+
+        let bars = sortedMonths.map((m, i) => {
+            const cnt = months[m];
+            const h = (cnt / maxPulls) * chartH;
+            const x = padL + i * barW + 6;
+            const y = padT + chartH - h;
+            const actualW = barW - 12;
+            const lbl = m.length >= 7 ? m.substring(2) : m;
+            const tipTxt = `${m}: ${cnt} pulls`;
+
+            return `
+            <rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${actualW.toFixed(1)}" height="${Math.max(2, h).toFixed(1)}" rx="3" fill="#38bdf8" opacity="0.85" class="chart-point" data-tip="${tipTxt}" />
+            <text x="${(x + actualW/2).toFixed(1)}" y="${(y - 5).toFixed(1)}" fill="#ffffff" font-size="10" font-weight="bold" text-anchor="middle" font-family="monospace">${cnt}</text>
+            <text x="${(x + actualW/2).toFixed(1)}" y="${(padT + chartH + 16).toFixed(1)}" fill="#94a3b8" font-size="9" text-anchor="middle">${lbl}</text>
+            `;
+        }).join('');
+
+        return `<svg viewBox="0 0 ${width} ${height}" class="chart-svg" style="width:100%;height:100%;">
+            <line x1="${padL}" y1="${padT + chartH}" x2="${width - padR}" y2="${padT + chartH}" stroke="rgba(255,255,255,0.15)" />
+            ${bars}
+        </svg>`;
+    }
+
+    // ==========================================
+    // 7. DEEP FILTER & SORT HANDLER
+    // ==========================================
+    function applyTableFilter(tableId) {
+        const state = tableFilters[tableId] || { rarity: 'all', outcome: 'all', search: '', sort: 'date_desc' };
+        const tbody = document.getElementById(tableId);
+        if (!tbody) return;
+
+        // Remove any existing empty-state row first
+        const existingEmpty = tbody.querySelector('.filter-empty-row');
+        if (existingEmpty) existingEmpty.remove();
+
+        let rows = Array.from(tbody.querySelectorAll('tr:not(.filter-empty-row)'));
+        let visibleCount = 0;
+
+        rows.forEach(r => {
+            const rank = r.getAttribute('data-rank') || '';
+            const outcome = r.getAttribute('data-outcome') || '';
+            const name = (r.getAttribute('data-name') || '').toLowerCase();
+
+            let matchRarity = (state.rarity === 'all') || (state.rarity === rank);
+            let matchOutcome = (state.outcome === 'all') || (state.outcome === outcome);
+            let matchSearch = !state.search || name.includes(state.search);
+
+            if (matchRarity && matchOutcome && matchSearch) {
+                r.style.display = '';
+                visibleCount++;
+            } else {
+                r.style.display = 'none';
+            }
+        });
+
+        if (visibleCount === 0 && rows.length > 0) {
+            const table = tbody.closest('table');
+            const colCount = table ? table.querySelectorAll('thead th').length : 5;
+            const emptyTr = document.createElement('tr');
+            emptyTr.className = 'filter-empty-row';
+            emptyTr.innerHTML = `
+                <td colspan="${colCount}" class="empty-filter-cell">
+                    <div class="empty-filter-icon">🔍</div>
+                    <div style="font-weight:700; color:var(--text-main); margin-bottom:4px;">No matching records found</div>
+                    <div>No pulls match the active rarity, outcome, or search filters.</div>
+                </td>`;
+            tbody.appendChild(emptyTr);
+            return;
+        }
+
+        let visibleRows = rows.filter(r => r.style.display !== 'none');
+        visibleRows.sort((a, b) => {
+            const pityA = parseInt(a.getAttribute('data-pity') || '0');
+            const pityB = parseInt(b.getAttribute('data-pity') || '0');
+            const dateA = a.getAttribute('data-date') || '';
+            const dateB = b.getAttribute('data-date') || '';
+
+            if (state.sort === 'pity_desc') return pityB - pityA;
+            if (state.sort === 'pity_asc') return pityA - pityB;
+            if (state.sort === 'date_asc') return dateA.localeCompare(dateB);
+            return dateB.localeCompare(dateA);
+        });
+
+        visibleRows.forEach(r => tbody.appendChild(r));
+    }
+
+    function setFilterRarity(btn, tableId, rarity) {
+        if (!tableFilters[tableId]) tableFilters[tableId] = { rarity: 'all', outcome: 'all', search: '', sort: 'date_desc' };
+        tableFilters[tableId].rarity = rarity;
+        btn.parentElement.querySelectorAll('.filter-pill').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        applyTableFilter(tableId);
+    }
+
+    function setFilterOutcome(btn, tableId, outcome) {
+        if (!tableFilters[tableId]) tableFilters[tableId] = { rarity: 'all', outcome: 'all', search: '', sort: 'date_desc' };
+        tableFilters[tableId].outcome = outcome;
+        btn.parentElement.querySelectorAll('.filter-pill').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        applyTableFilter(tableId);
+    }
+
+    function setSearchQuery(input, tableId) {
+        if (!tableFilters[tableId]) tableFilters[tableId] = { rarity: 'all', outcome: 'all', search: '', sort: 'date_desc' };
+        tableFilters[tableId].search = input.value.toLowerCase().trim();
+        applyTableFilter(tableId);
+    }
+
+    function setSortOrder(select, tableId) {
+        if (!tableFilters[tableId]) tableFilters[tableId] = { rarity: 'all', outcome: 'all', search: '', sort: 'date_desc' };
+        tableFilters[tableId].sort = select.value;
+        applyTableFilter(tableId);
+    }
+
+    function getLuckStatus(pity, isLc) {
+        let soft = isLc ? HSR_CONFIG.LC_SOFT : HSR_CONFIG.CHAR_SOFT;
+        let hard = isLc ? HSR_CONFIG.LC_HARD : HSR_CONFIG.CHAR_HARD;
+        if (pity <= 10) return ["TOP 1% 💎", "god"];
+        if (pity <= 40) return ["LUCKY 🍀", "lucky"];
+        if (pity < soft) return ["EARLY ⚡", "early"];
+        if (pity < hard) return ["SOFT PITY ⚠️", "soft"];
+        return ["HARD PITY 💀", "hard"];
+    }
+
+    // ==========================================
+    // 8. HSR DASHBOARD & COMBINED SUMMARY BUILDER
+    // ==========================================
+    function getAccountNicknames() {
+        try {
+            return JSON.parse(localStorage.getItem('hsr_account_nicknames')) || {};
+        } catch (e) {
+            return {};
+        }
+    }
+
+    function setAccountNickname(uid, nickname) {
+        let nicks = getAccountNicknames();
+        if (!nickname || !nickname.trim()) {
+            delete nicks[uid];
+        } else {
+            nicks[uid] = nickname.trim();
+        }
+        localStorage.setItem('hsr_account_nicknames', JSON.stringify(nicks));
+        const savedHSR = localStorage.getItem('hsr_accounts');
+        if (savedHSR) {
+            buildHSR(JSON.parse(savedHSR));
+            switchUIDTab(uid);
+        }
+        showToast("✨ Account nickname updated!");
+    }
+
+    function promptEditNickname(event, uid) {
+        event.stopPropagation();
+        let nicks = getAccountNicknames();
+        let current = nicks[uid] || "";
+        let input = prompt(`Enter a nickname for Account UID ${uid}:`, current);
+        if (input !== null) {
+            setAccountNickname(uid, input);
+        }
+    }
+
+    function formatAccountDisplay(uid) {
+        let nicks = getAccountNicknames();
+        let colorClass = getAccountPaletteClass(uid);
+        if (nicks[uid]) {
+            return `<span class="${colorClass}" style="color:var(--acc-color); font-weight:700;">${nicks[uid]}</span> <span style="font-size:0.82em; opacity:0.75;">(${uid})</span>`;
+        }
+        return `<span>UID:</span> <span class="${colorClass}" style="color:var(--acc-color); font-weight:700;">${uid}</span>`;
+    }
+
+    function formatAccountBadge(uid) {
+        let nicks = getAccountNicknames();
+        let colorClass = getAccountPaletteClass(uid);
+        if (nicks[uid]) {
+            return `<span class="pill-badge acc-badge-colored ${colorClass}" style="font-size:10px;">${nicks[uid]} (${uid})</span>`;
+        }
+        return `<span class="pill-badge acc-badge-colored ${colorClass}" style="font-size:10px;">UID: ${uid}</span>`;
+    }
+
+    function getAccountPaletteClass(uid) {
+        let hash = 0;
+        let str = String(uid);
+        for (let i = 0; i < str.length; i++) {
+            hash = (hash << 5) - hash + str.charCodeAt(i);
+            hash |= 0;
+        }
+        let index = Math.abs(hash) % 6;
+        return `acc-palette-${index}`;
+    }
+
+    function deleteSingleAccount(event, uid) {
+        event.stopPropagation();
+        let nicks = getAccountNicknames();
+        let displayName = nicks[uid] ? `"${nicks[uid]}" (${uid})` : `UID ${uid}`;
+        if (confirm(`Are you sure you want to delete account ${displayName}?\nThis will remove its warp records from this browser.`)) {
+            let accountsDict = JSON.parse(localStorage.getItem('hsr_accounts')) || {};
+            delete accountsDict[uid];
+            localStorage.setItem('hsr_accounts', JSON.stringify(accountsDict));
+            
+            // Clean up nickname too
+            delete nicks[uid];
+            localStorage.setItem('hsr_account_nicknames', JSON.stringify(nicks));
+            
+            buildHSR(accountsDict);
+            updateDropZoneVisibility();
+            showToast(`🗑️ Account ${displayName} deleted.`);
+        }
+    }
+
+    function renderBannerPanel(uid, code, bannerKey, title, subtitle, items, isFirst = false, isCombined = false) {
+        let activeCls = isFirst ? " active" : "";
+        let tableId = `tbl-${uid}-${code}`;
+        let chartId = `${uid}-${code}`.replace(/[^a-zA-Z0-9]/g, '_');
+
+        let panelHtml = `<div id="panel-${uid}-${bannerKey}" class="banner-view-panel${activeCls}">`;
+
+        if (!items || !items.length) {
+            panelHtml += `
+            <div class="empty-state">
+                <div class="empty-icon">🌠</div>
+                <div class="empty-text">No records on ${title}</div>
+                <p>No pulls recorded in this specific banner bucket yet.</p>
+            </div></div>`;
+            return panelHtml;
+        }
+
+        items.sort((a, b) => parseInt(a.id || 0) - parseInt(b.id || 0));
+        let isLc = (code === '12' || code === '22');
+        let isEvent = ['11', '12', '21', '22'].includes(code);
+        let hardCap = (code === '2') ? HSR_CONFIG.DEP_HARD : (isLc ? HSR_CONFIG.LC_HARD : HSR_CONFIG.CHAR_HARD);
+        let softPityVal = isLc ? HSR_CONFIG.LC_SOFT : HSR_CONFIG.CHAR_SOFT;
+        let stdLcs = HSR_CONFIG.STD_LCS;
+
+        let pity5 = 0, pity4 = 0, total = 0, wins = 0, losses = 0, streak = 0;
+        let last5StarWasWin = null;
+        let history = [];
+
+        items.forEach(item => {
+            total++; pity5++; pity4++;
+            let is5Star = item.rank_type == "5";
+            let isDDD = item.rank_type == "4" && item.name === "Dance! Dance! Dance!";
+
+            if (is5Star || isDDD) {
+                let status = "", statusClass = "", isWin = null;
+                let itemPity = is5Star ? pity5 : pity4;
+
+                if (is5Star) {
+                    let luck = getLuckStatus(pity5, isLc);
+                    status = luck[0]; statusClass = "badge badge-" + luck[1];
+
+                    if (isEvent) {
+                        let isOffBanner = isLc ? stdLcs.includes(item.name) : isCharacterOffBannerLoss(item.name, item.time);
+                        if (isOffBanner) {
+                            isWin = false; losses++; streak = streak <= 0 ? streak - 1 : -1;
+                            last5StarWasWin = false;
+                        } else {
+                            isWin = true; wins++; streak = streak >= 0 ? streak + 1 : 1;
+                            last5StarWasWin = true;
+                        }
+                    }
+                    pity5 = 0;
+                } else {
+                    status = "DDD ★★★★"; statusClass = "badge badge-4star";
+                    pity4 = 0;
+                }
+
+                let dateStr = item.time ? item.time.split(' ')[0] : "Unknown";
+                history.push({ 
+                    name: item.name, 
+                    pity: itemPity, 
+                    status: status, 
+                    class: statusClass, 
+                    date: dateStr, 
+                    is_win: isWin, 
+                    rank: item.rank_type,
+                    accountUid: item.accountUid || uid 
+                });
+            } else if (item.rank_type == "4") {
+                pity4 = 0;
+            }
+        });
+
+        history.reverse();
+        let ssrOnly = history.filter(x => x.rank == '5');
+        let avgPity = ssrOnly.length ? (ssrOnly.reduce((a, b) => a + b.pity, 0) / ssrOnly.length).toFixed(1) : 0;
+        let percent = Math.min(100, (pity5 / hardCap) * 100);
+        let remaining = Math.max(0, hardCap - pity5);
+        let softMarkerPercent = (softPityVal / hardCap) * 100;
+        let inSoftPity = pity5 >= softPityVal;
+
+        let guaranteeStatus = "";
+        if (isEvent) {
+            if (last5StarWasWin === false) {
+                guaranteeStatus = `<span style="color:var(--green); font-weight:700;">● Guaranteed Featured Next!</span>`;
+            } else if (last5StarWasWin === true) {
+                guaranteeStatus = `<span style="color:var(--accent); font-weight:700;">● Next 5★ on 50/50</span>`;
+            }
+        }
+
+        // Banner Hero Card (No Fake Stellar Jades, Isolated Account Stats)
+        panelHtml += `
+        <div class="banner-hero-card">
+            <div class="banner-hero-header">
+                <div>
+                    <h2 class="banner-title">${title}</h2>
+                    <div class="banner-subtitle">${subtitle}</div>
+                </div>
+                <div class="banner-pills">
+                    <span class="pill-badge">Total: ${total} Warps</span>
+                    <span class="pill-badge gold-text">${ssrOnly.length} 5★ Drops</span>
+                    ${!isCombined ? guaranteeStatus : ''}
+                </div>
+            </div>
+
+            <div class="banner-stats-grid">
+                ${!isCombined ? `
+                <div class="b-stat-box">
+                    <div class="b-stat-label">Current Pity</div>
+                    <div class="b-stat-val gold-text">${pity5} <span style="font-size:0.7em; color:var(--text-muted);">/ ${hardCap}</span></div>
+                </div>` : ''}
+                <div class="b-stat-box">
+                    <div class="b-stat-label">Average 5★ Pity</div>
+                    <div class="b-stat-val">${avgPity}</div>
+                </div>
+                ${!isCombined ? `
+                <div class="b-stat-box">
+                    <div class="b-stat-label">Guaranteed In</div>
+                    <div class="b-stat-val" style="color:var(--accent);">${remaining} <span style="font-size:0.7em; color:var(--text-muted);">pulls</span></div>
+                </div>` : ''}
+                ${isEvent && (wins + losses > 0) ? `
+                <div class="b-stat-box">
+                    <div class="b-stat-label">50/50 Win Rate</div>
+                    <div class="b-stat-val" style="color:var(--green);">${((wins / (wins + losses)) * 100).toFixed(1)}% <span style="font-size:0.65em; color:var(--text-muted);">(${wins}W-${losses}L)</span></div>
+                </div>` : ''}
+            </div>
+
+            ${!isCombined ? `
+            <!-- Minimalist Dual-Tier Glass Pill Pity Bar -->
+            <div class="pity-pill-wrap">
+                <div class="pity-pill-labels">
+                    <span style="font-weight:700; color:var(--text-main); font-size:12px; display:flex; align-items:center; gap:6px;">
+                        <span>🌠 Pity Progress</span>
+                        ${inSoftPity ? '<span style="color:#ef4444; font-weight:800; font-size:10px; background:rgba(239,68,68,0.15); border:1px solid #ef4444; border-radius:3px; padding:1px 5px;">SOFT PITY ACTIVE</span>' : ''}
+                    </span>
+                    <span style="font-weight:800; font-family:monospace; color:${inSoftPity ? '#fbbf24' : '#38bdf8'}; font-size:14px;">
+                        ${pity5} <span style="color:var(--text-muted); font-size:12px;">/ ${hardCap}</span>
+                    </span>
+                </div>
+                <div class="pity-pill-track">
+                    ${code !== '2' ? `<div class="pity-pill-target" style="left: ${softMarkerPercent}%;" title="Soft Pity starts at pull ${softPityVal}"></div>` : ''}
+                    <div class="pity-pill-fill ${inSoftPity ? 'in-soft-pity' : ''}" style="width: ${percent}%;"></div>
+                </div>
+                <div class="pity-pill-sub">
+                    <span>${code !== '2' ? `🛡️ Normal Pity: 0 – ${softPityVal}` : 'Standard Pool'}</span>
+                    <span>${code !== '2' ? `⚠️ Soft Pity: ${softPityVal} – ${hardCap}` : ''}</span>
+                    <span>🎯 Hard Pity: ${hardCap}</span>
+                </div>
+            </div>` : ''}
+        </div>`;
+
+        // Charts Section
+        if (code === '1' || code === '2') {
+            // Standard / Departure Banners: Full-Width Smooth Curve Graph over the year
+            panelHtml += `
+            <div class="charts-grid" style="grid-template-columns: 1fr;">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h4 class="chart-title">📈 Annual Warp Activity Timeline (12-Month Smooth Curve)</h4>
+                        <span style="font-size:11px; color:var(--text-muted);">Historical Pull Progression Over Time</span>
+                    </div>
+                    <div class="chart-body" style="min-height:220px;">
+                        ${renderSmoothMonthlyVolumeSVG(items, chartId)}
+                    </div>
+                </div>
+            </div>`;
+        } else {
+            // Limited Event Banners: Two-Sided Win/Loss Distribution + 50/50 Donut
+            panelHtml += `
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h4 class="chart-title">📊 Two-Sided Pity Bracket Distribution</h4>
+                        <span style="font-size:11px; color:var(--text-muted);">${isEvent ? 'Wins (Top) vs Losses (Underside)' : 'Drops by Pity Bracket'}</span>
+                    </div>
+                    <div class="chart-body">
+                        ${renderBiDirectionalDistributionSVG(history, isLc, isEvent, chartId)}
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h4 class="chart-title">${isEvent ? '🍩 50/50 Win Rate Breakdown' : '📅 Monthly Pull Volume'}</h4>
+                        <span style="font-size:11px; color:var(--text-muted);">${isEvent ? 'Featured vs Standard Loss' : 'Warp Activity'}</span>
+                    </div>
+                    <div class="chart-body">
+                        ${isEvent ? renderDonutSVG(wins, losses, isLc ? '75/25 Rate' : '50/50 Rate') : renderMonthlyActivitySVG(items)}
+                    </div>
+                </div>
+            </div>`;
+        }
+
+        // Deep Filter & Sort Toolbar
+        panelHtml += `
+        <div class="toolbar-panel">
+            <div class="toolbar-left">
+                <div class="filter-pill-group">
+                    <button class="filter-pill active" onclick="setFilterRarity(this, '${tableId}', 'all')">All</button>
+                    <button class="filter-pill" onclick="setFilterRarity(this, '${tableId}', '5')">5★</button>
+                    <button class="filter-pill ddd-pill" onclick="setFilterRarity(this, '${tableId}', '4')">4★ Dance! Dance! Dance!</button>
+                </div>
+                ${isEvent ? `
+                <div class="filter-pill-group">
+                    <button class="filter-pill active" onclick="setFilterOutcome(this, '${tableId}', 'all')">All Outcomes</button>
+                    <button class="filter-pill" onclick="setFilterOutcome(this, '${tableId}', 'win')">Wins Only</button>
+                    <button class="filter-pill" onclick="setFilterOutcome(this, '${tableId}', 'loss')">Losses Only</button>
+                </div>` : ''}
+            </div>
+
+            <div class="toolbar-right">
+                <div class="search-control-wrap">
+                    <span class="search-icon-prefix">🔍</span>
+                    <input type="text" class="search-box" placeholder="Search character or Light Cone..." oninput="setSearchQuery(this, '${tableId}')">
+                </div>
+                <div class="sort-control-wrap">
+                    <select class="sort-select" onchange="setSortOrder(this, '${tableId}')">
+                        <option value="date_desc">📅 Newest Date</option>
+                        <option value="date_asc">📅 Oldest Date</option>
+                        <option value="pity_desc">⚡ Highest Pity</option>
+                        <option value="pity_asc">⚡ Lowest Pity</option>
+                    </select>
+                </div>
+            </div>
+        </div>`;
+
+        // History Table
+        panelHtml += `
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        ${isCombined ? '<th>Account</th>' : ''}
+                        <th>Entity</th>
+                        <th>Pity</th>
+                        <th>Status / Tier</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody id="${tableId}">`;
+
+        history.forEach(item => {
+            let nClass = item.rank == '5' ? "gold-text" : "purple-text";
+            let wlBadge = item.is_win === true ? "<span class='tag-win'>WIN</span>" : item.is_win === false ? "<span class='tag-loss'>LOSS</span>" : "";
+            let outcomeAttr = item.is_win === true ? "win" : item.is_win === false ? "loss" : "none";
+            let paletteClass = getAccountPaletteClass(item.accountUid);
+
+            panelHtml += `
+            <tr class="acc-row-gradient ${paletteClass}" data-rank="${item.rank}" data-outcome="${outcomeAttr}" data-name="${item.name}" data-pity="${item.pity}" data-date="${item.date}">
+                ${isCombined ? `<td>${formatAccountBadge(item.accountUid)}</td>` : ''}
+                <td class="name-cell ${nClass}">${item.name} ${wlBadge}</td>
+                <td style="font-weight:bold; color:#ffffff; font-family:monospace;">${item.pity}</td>
+                <td><span class="${item.class}">${item.status}</span></td>
+                <td style="color:var(--text-muted); font-size:11px;">${item.date}</td>
+            </tr>`;
+        });
+
+        panelHtml += `</tbody></table></div></div>`;
+        return panelHtml;
+    }
+
+    function buildHSR(accountsDict) {
+        let uids = Object.keys(accountsDict).sort();
+        if (uids.length === 0) {
+            document.getElementById('hsr-content').innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon">🌠</div>
+                    <div class="empty-text">No local HSR warp data found</div>
+                    <p>Drag & drop your <code>hsr_UID.json</code> above, paste JSON text, or explore with realistic sample data.</p>
+                    <div style="margin-top: 16px;">
+                        <button class="btn-action btn-gold" onclick="loadDemoData()">✨ Load Sample HSR Data</button>
+                    </div>
+                </div>`;
+            return;
+        }
+
+        let firstUid = uids[0];
+
+        // Top Accounts Row (with All-Accounts Summary sitting at the back of the accounts list)
+        let html = `<div class="uid-container"><div class="uid-bar">`;
+        html += `<div class="uid-tabs">`;
+        uids.forEach(uid => {
+            let active = (uid === firstUid) ? " active" : "";
+            html += `<button id="btn-${uid}" class="uid-btn${active}" onclick="switchUIDTab('${uid}')">${formatAccountDisplay(uid)} <span class="uid-edit-btn" onclick="promptEditNickname(event, '${uid}')" title="Edit account nickname">✏️</span><span class="uid-del-btn" onclick="deleteSingleAccount(event, '${uid}')" title="Delete account ${uid}">✕</span></button>`;
+        });
+        // The All-Accounts Summary tab sitting at the back of the accounts list
+        html += `<button id="btn-ALL_ACCOUNTS" class="uid-btn summary-btn" onclick="switchUIDTab('ALL_ACCOUNTS')">📊 All-Accounts Summary</button>`;
+        html += `</div>`;
+        html += `<div style="display:flex; gap:8px;">
+            <button class="clear-btn" onclick="clearData('hsr_accounts')">Clear All HSR Data</button>
+        </div></div></div>`;
+
+        // 1. Render Each Individual Account (Strictly isolated, single-view display)
+        uids.forEach(uid => {
+            let data = accountsDict[uid] || [];
+            let active = (uid === firstUid) ? " active" : "";
+            html += `<div id="acc-${uid}" class="account-view${active}">`;
+
+            let banners = { '11': [], '12': [], '1': [], '2': [], '21': [], '22': [] };
+            data.forEach(item => {
+                if (item.gacha_type && banners[item.gacha_type]) {
+                    banners[item.gacha_type].push(item);
+                }
+            });
+
+            // Sub-Navigation Tabs inside this specific account
+            html += `<div class="banner-subtabs">
+                <button id="subtab-${uid}-11" class="subtab-btn active" onclick="switchBannerSubtab('${uid}', '11')">🌟 Character Event</button>
+                <button id="subtab-${uid}-12" class="subtab-btn" onclick="switchBannerSubtab('${uid}', '12')">🗡️ Light Cone Event</button>
+                <button id="subtab-${uid}-1" class="subtab-btn" onclick="switchBannerSubtab('${uid}', '1')">🌌 Stellar Warp</button>
+                <button id="subtab-${uid}-2" class="subtab-btn" onclick="switchBannerSubtab('${uid}', '2')">🎟️ Departure Warp</button>`;
+            
+            if (banners['21'].length || banners['22'].length) {
+                html += `<button id="subtab-${uid}-collab" class="subtab-btn" onclick="switchBannerSubtab('${uid}', 'collab')">🤝 Collab Warps</button>`;
+            }
+
+            html += `</div>`;
+
+            // Isolated Banner Panels
+            html += renderBannerPanel(uid, '11', '11', 'Character Event Warp', `Limited Character Pool • UID ${uid}`, banners['11'], true, false);
+            html += renderBannerPanel(uid, '12', '12', 'Light Cone Event Warp', `Limited Light Cone Pool • UID ${uid}`, banners['12'], false, false);
+            html += renderBannerPanel(uid, '1', '1', 'Stellar Warp', `Permanent Standard Pool • UID ${uid}`, banners['1'], false, false);
+            html += renderBannerPanel(uid, '2', '2', 'Departure Warp', `Beginner Discount Pool • UID ${uid}`, banners['2'], false, false);
+
+            if (banners['21'].length || banners['22'].length) {
+                html += renderBannerPanel(uid, '21', 'collab', 'Collab Warp Hub', `Special Crossover Pool • UID ${uid}`, banners['21'], false, false);
+            }
+
+            html += `</div>`; // Close account-view
+        });
+
+        // 2. Render the "ALL_ACCOUNTS" Combined View (Structured the same as a normal account tab, combining all accounts)
+        let combinedBanners = { '11': [], '12': [], '1': [], '2': [], '21': [], '22': [] };
+        uids.forEach(u => {
+            (accountsDict[u] || []).forEach(item => {
+                if (item.gacha_type && combinedBanners[item.gacha_type]) {
+                    combinedBanners[item.gacha_type].push({ ...item, accountUid: u });
+                }
+            });
+        });
+
+        html += `<div id="acc-ALL_ACCOUNTS" class="account-view">`;
+        html += `<div class="banner-subtabs">
+            <button id="subtab-ALL_ACCOUNTS-11" class="subtab-btn active" onclick="switchBannerSubtab('ALL_ACCOUNTS', '11')">🌟 Character Event</button>
+            <button id="subtab-ALL_ACCOUNTS-12" class="subtab-btn" onclick="switchBannerSubtab('ALL_ACCOUNTS', '12')">🗡️ Light Cone Event</button>
+            <button id="subtab-ALL_ACCOUNTS-1" class="subtab-btn" onclick="switchBannerSubtab('ALL_ACCOUNTS', '1')">🌌 Stellar Warp</button>
+            <button id="subtab-ALL_ACCOUNTS-2" class="subtab-btn" onclick="switchBannerSubtab('ALL_ACCOUNTS', '2')">🎟️ Departure Warp</button>`;
+        
+        if (combinedBanners['21'].length || combinedBanners['22'].length) {
+            html += `<button id="subtab-ALL_ACCOUNTS-collab" class="subtab-btn" onclick="switchBannerSubtab('ALL_ACCOUNTS', 'collab')">🤝 Collab Warps</button>`;
+        }
+        html += `</div>`;
+
+        html += renderBannerPanel('ALL_ACCOUNTS', '11', '11', 'Character Event Warp (Combined)', `All Accounts Combined (${uids.length} Accounts)`, combinedBanners['11'], true, true);
+        html += renderBannerPanel('ALL_ACCOUNTS', '12', '12', 'Light Cone Event Warp (Combined)', `All Accounts Combined (${uids.length} Accounts)`, combinedBanners['12'], false, true);
+        html += renderBannerPanel('ALL_ACCOUNTS', '1', '1', 'Stellar Warp (Combined)', `All Accounts Combined (${uids.length} Accounts)`, combinedBanners['1'], false, true);
+        html += renderBannerPanel('ALL_ACCOUNTS', '2', '2', 'Departure Warp (Combined)', `All Accounts Combined (${uids.length} Accounts)`, combinedBanners['2'], false, true);
+
+        if (combinedBanners['21'].length || combinedBanners['22'].length) {
+            html += renderBannerPanel('ALL_ACCOUNTS', '21', 'collab', 'Collab Warp Hub (Combined)', `All Accounts Combined (${uids.length} Accounts)`, combinedBanners['21'], false, true);
+        }
+
+        html += `</div>`; // Close acc-ALL_ACCOUNTS
+
+        document.getElementById('hsr-content').innerHTML = html;
+    }
+
+    // ==========================================
+    // 9. ARKNIGHTS ENDFIELD ENGINE
+    // ==========================================
     function analyzeEndfieldPool(items, isWeapon, hardCap) {
         items.sort((a, b) => parseInt(a.seqId || a.seq_id || 0) - parseInt(b.seqId || b.seq_id || 0));
         let pity = 0, total = 0, wins = 0, losses = 0, streak = 0, history = [];
@@ -241,13 +2480,13 @@
             currentBannerPulls++;
 
             if (item.rarity === 6) {
-                let label = "Regular", labelCls = "badge-reg";
-                if (pity <= limit) { label = "Early"; labelCls = "badge badge-early"; }
-                else if (pity >= hardCap) { label = "Hard Pity"; labelCls = "badge badge-hard"; }
+                let label = "Regular", labelCls = "badge badge-reg";
+                if (pity <= limit) { label = "Early ⚡"; labelCls = "badge badge-early"; }
+                else if (pity >= hardCap) { label = "Hard Pity 💀"; labelCls = "badge badge-hard"; }
                 
                 let name = item.weaponName || item.charName || item.name || item.id || "Unknown";
                 let isWin = null, target = null;
-                
+
                 if (isWeapon) target = EF_CONFIG.WEAPON_BANNERS[poolName];
                 else if (!poolName.toLowerCase().includes('standard') && !poolName.toLowerCase().includes('beginner')) target = EF_CONFIG.CHAR_BANNERS[poolName];
 
@@ -271,7 +2510,7 @@
 
     function buildEndfield(efData) {
         if (!efData.characters.length && !efData.weapons.length) return;
-        let html = "<div class='grid'>";
+        let html = "<div style='display:grid; grid-template-columns:repeat(auto-fit, minmax(460px, 1fr)); gap:20px;'>";
         
         const renderEfCard = (title, subtitle, items, isWeapon) => {
             if(!items || items.length === 0) return "";
@@ -281,69 +2520,51 @@
             let remaining = hardCap - stats.pity;
 
             let cardHtml = `
-            <div class="card">
-                <div class="card-header"><div class="banner-name">${title}</div><div style="color:var(--text-muted)">Total: ${stats.total}</div></div>
-                <div class="pool-sub">${subtitle}</div>
-                <div class="stat-row"><span>Avg Pity: <strong>${stats.avgPity}</strong></span><span>Current: <span class="gold-text">${stats.pity}</span> / ${hardCap}</span></div>
-                <div class="progress-container"><div class="ef-progress-bar" style="width: ${percent}%"></div><div class="progress-text">${stats.pity}</div></div>
-                <div style="text-align:right; font-size:11px; color:var(--text-muted); margin-bottom:15px; margin-top:-10px;">Guaranteed 6★ in ${remaining} pulls</div>`;
+            <div class="banner-hero-card">
+                <div class="banner-hero-header">
+                    <div>
+                        <h3 class="banner-title" style="font-size:1.25rem;">${title}</h3>
+                        <div class="banner-subtitle">${subtitle}</div>
+                    </div>
+                    <span class="pill-badge">Total: ${stats.total}</span>
+                </div>
+                <div class="banner-stats-grid">
+                    <div class="b-stat-box"><div class="b-stat-label">Current Pity</div><div class="b-stat-val gold-text">${stats.pity} / ${hardCap}</div></div>
+                    <div class="b-stat-box"><div class="b-stat-label">Avg Pity</div><div class="b-stat-val">${stats.avgPity}</div></div>
+                    <div class="b-stat-box"><div class="b-stat-label">Guaranteed In</div><div class="b-stat-val" style="color:var(--accent);">${remaining} pulls</div></div>
+                </div>
+                <div class="progress-container"><div class="ef-progress-bar" style="width: ${percent}%"></div><div class="progress-text">${stats.pity} / ${hardCap}</div></div>`;
 
             if (stats.wins + stats.losses > 0) {
                 let rate = ((stats.wins / (stats.wins + stats.losses)) * 100).toFixed(1);
                 let sTxt = stats.streak > 0 ? `${stats.streak} Wins` : `${Math.abs(stats.streak)} Losses`;
-                let sCol = stats.streak > 0 ? "#3fb950" : "#f85149";
+                let sCol = stats.streak > 0 ? "var(--green)" : "var(--red)";
                 cardHtml += `
                 <div class="fifty-box">
-                    <div><div class="fifty-title">${isWeapon ? '25/75' : '50/50'} Analytics (6★)</div>
-                    <div class="fifty-val" style="color:#f0f6fc">${rate}% <span style="font-weight:normal; color:var(--text-muted); font-size:0.8em">(${stats.wins}W-${stats.losses}L)</span></div></div>
-                    <div><div class="fifty-title">Streak</div><div class="fifty-val" style="color:${sCol}">${sTxt}</div></div>
+                    <div>
+                        <div class="fifty-title">${isWeapon ? '25/75' : '50/50'} Analytics (6★)</div>
+                        <div class="fifty-val" style="color:#ffffff">${rate}% <span style="font-weight:normal; color:var(--text-muted); font-size:0.8em">(${stats.wins}W-${stats.losses}L)</span></div>
+                    </div>
+                    <div style="text-align:right;">
+                        <div class="fifty-title">Streak</div>
+                        <div class="fifty-val" style="color:${sCol}">${sTxt}</div>
+                    </div>
                 </div>`;
-            }
-
-            if (!isWeapon && title.includes("Charted")) {
-                let sparkRem = Math.max(0, 120 - stats.activeCount);
-                let tokenRem = Math.max(0, 240 - stats.activeCount);
-                cardHtml += `
-                <div class="guarantee-box">
-                    <div style="font-size:11px; color:var(--text-muted); margin-bottom:8px; text-transform:uppercase;">Active Banner: <span style="color:#fff">${stats.activeName}</span></div>
-                    <div class="g-row"><span>Spark (120):</span><span style="font-weight:bold">${sparkRem} pulls</span></div>
-                    <div class="g-row"><span>Token (240):</span><span style="font-weight:bold">${tokenRem} pulls</span></div>
-                    <div style="font-size:10px; color:var(--text-muted); margin-top:5px;">*Resets on banner switch.</div>
-                </div>`;
-            } else if (isWeapon) {
-                let nextLad = "Maxed", need = 0;
-                for (let [mil, rew] of EF_CONFIG.WEAPON_LADDER) {
-                    if (stats.total < mil) { nextLad = rew; need = mil - stats.total; break; }
-                }
-                if (need > 0) {
-                    cardHtml += `
-                    <div class="guarantee-box">
-                        <div style="font-size:11px; color:var(--text-muted); margin-bottom:8px; text-transform:uppercase;">Arsenal Ladder</div>
-                        <div class="g-row"><span>Next Reward: <span style="color:var(--ef-accent)">${nextLad}</span></span><span style="font-weight:bold">in ${need} pulls</span></div>
-                    </div>`;
-                }
             }
 
             if (stats.history.length > 0) {
-                let showBanner = title.includes("Charted") || subtitle.includes("Combined");
-                let headers = "<th>6★ Drop</th>";
-                if (showBanner) headers += "<th>Banner</th>";
-                headers += "<th>Pity</th><th>Status</th><th>Date</th>";
-                
-                cardHtml += `<div style="overflow-x:auto;"><table><thead><tr>${headers}</tr></thead><tbody>`;
+                cardHtml += `<div class="table-wrap" style="margin-top:16px;"><table><thead><tr><th>6★ Drop</th><th>Pity</th><th>Status</th><th>Date</th></tr></thead><tbody>`;
                 stats.history.slice(0, 10).forEach(ssr => {
                     let wlBadge = ssr.is_win === true ? "<span class='tag-win'>WIN</span>" : ssr.is_win === false ? "<span class='tag-loss'>LOSS</span>" : "";
-                    cardHtml += `<tr><td class="gold-text">${ssr.name} ${wlBadge}</td>`;
-                    if (showBanner) cardHtml += `<td style='font-size:11px; color:var(--text-muted);'>${ssr.pool_name}</td>`;
-                    cardHtml += `
-                        <td style="color:var(--text-main); font-weight:bold;">${ssr.pity}</td>
+                    cardHtml += `<tr>
+                        <td class="name-cell gold-text">${ssr.name} ${wlBadge}</td>
+                        <td style="color:#ffffff; font-weight:bold; font-family:monospace;">${ssr.pity}</td>
                         <td><span class="${ssr.class}">${ssr.label}</span></td>
-                        <td style="color:var(--text-muted);">${ssr.date}</td>
+                        <td style="color:var(--text-muted); font-size:11px;">${ssr.date}</td>
                     </tr>`;
                 });
                 cardHtml += `</tbody></table></div>`;
-                if(stats.history.length > 10) cardHtml += `<div style="text-align:center; font-size:11px; color:var(--text-muted); margin-top:10px;">Showing last 10 drops</div>`;
-            } else { cardHtml += `<div style='text-align:center; padding:20px; color:var(--text-muted)'>No 6★ history.</div>`; }
+            }
             return cardHtml + "</div>";
         };
 
@@ -364,172 +2585,6 @@
         });
 
         document.getElementById('endfield-content').innerHTML = html + "</div>";
-    }
-
-    // ==========================================
-    // 4. HSR DASHBOARD ENGINE
-    // ==========================================
-    const HSR_CONFIG = {
-        CHAR_HARD: 90, CHAR_SOFT: 74, LC_HARD: 80, LC_SOFT: 66,
-        STD_CHARS: ["Himeko", "Welt", "Bronya", "Gepard", "Clara", "Yanqing", "Bailu", "Blade", "Seele", "Fu Xuan"],
-        STD_LCS: ["Night on the Milky Way", "In the Name of the World", "But the Battle Isn't Over", "Moment of Victory", "Something Irreplaceable", "Sleep Like the Dead", "Time Waits for No One"],
-        WATCHLIST: ["Dance! Dance! Dance!"]
-    };
-
-    function getLuckStatus(pity, isLc) {
-        let soft = isLc ? HSR_CONFIG.LC_SOFT : HSR_CONFIG.CHAR_SOFT;
-        let hard = isLc ? HSR_CONFIG.LC_HARD : HSR_CONFIG.CHAR_HARD;
-        if (pity <= 10) return ["TOP 1% 💎", "god"];
-        if (pity <= 40) return ["LUCKY 🍀", "lucky"];
-        if (pity < soft) return ["EARLY ⚡", "early"];
-        if (pity < hard) return ["SOFT PITY ⚠️", "soft"];
-        return ["HARD PITY 💀", "hard"];
-    }
-
-    function showNextYear(btn) {
-        let targetYear = btn.getAttribute('data-next-year');
-        let card = btn.closest('.card');
-        card.querySelectorAll('.year-' + targetYear).forEach(row => { row.style.removeProperty('display'); row.classList.remove('hidden-year'); });
-        let nextHidden = card.querySelector('tr.hidden-year');
-        if (nextHidden) {
-            let nextYear = nextHidden.className.match(/year-(\d+)/)[1];
-            let count = card.querySelectorAll('.year-' + nextYear).length;
-            btn.setAttribute('data-next-year', nextYear); btn.innerHTML = `Show ${nextYear} (${count} items) ▼`;
-        } else { btn.style.display = 'none'; }
-    }
-
-    function toggleFourStars(btn) {
-        let tbody = btn.closest('.card').querySelector('tbody');
-        tbody.classList.toggle('hide-4stars');
-        if (tbody.classList.contains('hide-4stars')) { btn.innerHTML = 'Show 4★ Watchlist'; btn.classList.remove('active'); } 
-        else { btn.innerHTML = 'Hide 4★ Watchlist'; btn.classList.add('active'); }
-    }
-
-    function buildHSR(accountsDict) {
-        let uids = Object.keys(accountsDict).sort();
-        if (uids.length === 0) return;
-
-        let html = `<div class="uid-tabs">`;
-        let firstUid = uids[0];
-        uids.forEach(uid => {
-            let active = (uid === firstUid) ? " active" : "";
-            html += `<button id="btn-${uid}" class="uid-btn${active}" onclick="switchUIDTab('${uid}')">UID: ${uid}</button>`;
-        });
-        html += `</div>`;
-
-        uids.forEach(uid => {
-            let data = accountsDict[uid];
-            let active = (uid === firstUid) ? " active" : "";
-            html += `<div id="acc-${uid}" class="account-view${active}">`;
-            
-            let banners = { '11': [], '12': [], '1': [], '21': [], '22': [] };
-            data.forEach(item => { if(item.gacha_type && banners[item.gacha_type]) banners[item.gacha_type].push(item); });
-
-            html += "<div class='grid'>";
-            
-            const renderCard = (code, name) => {
-                let items = banners[code];
-                if (!items || !items.length) return "";
-                
-                items.sort((a, b) => parseInt(a.id || 0) - parseInt(b.id || 0));
-                
-                let isLc = (code == '12' || code == '22');
-                let hardCap = isLc ? HSR_CONFIG.LC_HARD : HSR_CONFIG.CHAR_HARD;
-                let stdPool = isLc ? HSR_CONFIG.STD_LCS : HSR_CONFIG.STD_CHARS;
-                
-                let pity = 0, total = 0, wins = 0, losses = 0, streak = 0, has4Star = false;
-                let history = [];
-
-                items.forEach(item => {
-                    total++; pity++;
-                    let is5Star = item.rank_type == "5";
-                    let isWatchlist = HSR_CONFIG.WATCHLIST.includes(item.name);
-                    
-                    if (is5Star || isWatchlist) {
-                        let status = "", statusClass = "", isWin = null;
-                        if (is5Star) {
-                            let luck = getLuckStatus(pity, isLc);
-                            status = luck[0]; statusClass = "badge badge-" + luck[1];
-                            
-                            if (['11', '12', '21', '22'].includes(code)) {
-                                if (stdPool.includes(item.name)) { isWin = false; losses++; streak = streak <= 0 ? streak - 1 : -1; } 
-                                else { isWin = true; wins++; streak = streak >= 0 ? streak + 1 : 1; }
-                            }
-                        } else { status = "4-STAR"; statusClass = "badge badge-4star"; has4Star = true; }
-                        
-                        let dateStr = item.time ? item.time.split(' ')[0] : "Unknown";
-                        history.push({ name: item.name, pity: pity, status: status, class: statusClass, date: dateStr, is_win: isWin, rank: item.rank_type });
-                        if (is5Star) pity = 0;
-                    }
-                });
-
-                history.reverse();
-                let ssrOnly = history.filter(x => x.rank == '5');
-                let avgPity = ssrOnly.length ? (ssrOnly.reduce((a, b) => a + b.pity, 0) / ssrOnly.length).toFixed(1) : 0;
-                let percent = Math.min(100, (pity / hardCap) * 100);
-
-                let cardHtml = `
-                <div class="card">
-                    <div class="card-header"><div class="banner-name">${name}</div><div style="color:var(--text-muted)">Total: ${total}</div></div>
-                    <div class="stat-row"><span>Avg Pity: <strong>${avgPity}</strong></span><span>Current: <span class="gold-text">${pity}</span> / ${hardCap}</span></div>
-                    <div class="progress-container"><div class="progress-bar" style="width: ${percent}%"></div><div class="progress-text">${pity}</div></div>`;
-
-                if (['11', '12', '21', '22'].includes(code) && (wins + losses > 0)) {
-                    let rate = ((wins / (wins + losses)) * 100).toFixed(1);
-                    let streakTxt = streak > 0 ? `${streak} Wins` : `${Math.abs(streak)} Losses`;
-                    let streakCol = streak > 0 ? "#3fb950" : "#f85149";
-                    cardHtml += `
-                    <div class="fifty-box">
-                        <div><div class="fifty-title">Win Rate</div><div class="fifty-val" style="color:#f0f6fc">${rate}% <span style="font-weight:normal; color:var(--text-muted); font-size:0.8em">(${wins}W-${losses}L)</span></div></div>
-                        <div><div class="fifty-title">Streak</div><div class="fifty-val" style="color:${streakCol}">${streakTxt}</div></div>
-                    </div>`;
-                }
-
-                if (history.length > 0) {
-                    if (has4Star) cardHtml += `<div class="control-bar"><button class="toggle-btn active" onclick="toggleFourStars(this)">Hide 4★ Watchlist</button></div>`;
-                    cardHtml += `<div style="overflow-x:auto;"><table><thead><tr><th>Entity</th><th>Pity</th><th>Status</th><th>Date</th></tr></thead><tbody>`;
-                    
-                    let years = {};
-                    history.forEach(item => { let y = item.date.split('-')[0]; if(!years[y]) years[y] = []; years[y].push(item); });
-                    let sortedYears = Object.keys(years).sort().reverse();
-                    let currentYear = sortedYears[0];
-
-                    sortedYears.forEach(year => {
-                        let isVisible = year === currentYear;
-                        let style = isVisible ? "" : 'style="display:none;"';
-                        let hiddenClass = isVisible ? "" : "hidden-year";
-                        
-                        years[year].forEach(item => {
-                            let nClass = item.rank == '5' ? "gold-text" : "purple-text";
-                            let rClass = item.rank == '4' ? "row-4star" : "";
-                            let wlBadge = item.is_win === true ? "<span class='tag-win'>WIN</span>" : item.is_win === false ? "<span class='tag-loss'>LOSS</span>" : "";
-                            
-                            cardHtml += `<tr class="year-${year} ${hiddenClass} ${rClass}" ${style}>
-                                <td class="name-cell ${nClass}">${item.name}${wlBadge}</td>
-                                <td style="font-weight:bold; color:#f0f6fc;">${item.pity}</td>
-                                <td><span class="${item.class}">${item.status}</span></td>
-                                <td style="color:var(--text-muted);">${item.date}</td>
-                            </tr>`;
-                        });
-                    });
-                    cardHtml += `</tbody></table></div>`;
-                    if (sortedYears.length > 1) {
-                        let nextYear = sortedYears[1];
-                        cardHtml += `<button class='show-year-btn' data-next-year='${nextYear}' onclick='showNextYear(this)'>Show ${nextYear} (${years[nextYear].length} items) ▼</button>`;
-                    }
-                } else { cardHtml += `<div style='text-align:center; padding:20px; color:var(--text-muted)'>No records found.</div>`; }
-                return cardHtml + "</div>";
-            };
-
-            html += renderCard('11', 'Character Event Warp');
-            html += renderCard('12', 'Light Cone Event Warp');
-            html += renderCard('1', 'Stellar Warp (Standard)');
-            html += renderCard('21', 'Collab Character Warp');
-            html += renderCard('22', 'Collab Light Cone Warp');
-            html += "</div></div>";
-        });
-
-        document.getElementById('hsr-content').innerHTML = html;
     }
 </script>
 </body>
