@@ -202,45 +202,187 @@
         .app-view.active { display: block; animation: fadeIn 0.3s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Level 1: Accounts (UID Tabs) - Single Account Display Fix */
-        .account-view { display: none; }
-        .account-view.active { display: block; animation: fadeIn 0.25s ease-out; }
+        /* Layout: Sticky Navigation Sidebar (Accounts + Banners) */
+        .hsr-layout-container {
+            display: grid;
+            grid-template-columns: 240px 1fr;
+            gap: 24px;
+            align-items: start;
+        }
 
-        .uid-container { margin-bottom: 20px; }
-        .uid-bar {
+        .unified-sidebar {
+            position: sticky;
+            top: 20px;
+            background: rgba(13, 19, 34, 0.88);
+            backdrop-filter: blur(14px);
+            border: 1px solid var(--panel-border);
+            border-radius: var(--radius-lg);
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+            z-index: 10;
+        }
+
+        .sidebar-section {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .sidebar-section-title {
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            padding: 0 4px 6px 4px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            flex-wrap: wrap;
-            gap: 12px;
-            padding: 12px 18px;
-            background: rgba(13, 19, 34, 0.85);
-            border: 1px solid var(--panel-border);
-            border-radius: var(--radius-md);
-            margin-bottom: 20px;
         }
-        .uid-tabs { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+        .sidebar-section-title .count {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-size: 10px;
+            color: var(--text-main);
+        }
+
+        .sidebar-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        /* Clean Account Tile */
         .uid-btn {
-            background: rgba(21, 31, 56, 0.8);
+            background: rgba(21, 31, 56, 0.6);
             color: var(--text-muted);
             border: 1px solid var(--border-color);
-            padding: 8px 16px;
+            padding: 9px 12px;
             border-radius: var(--radius-sm);
             cursor: pointer;
             font-size: 13px;
             font-weight: 600;
-            transition: all 0.2s;
+            transition: all 0.2s ease;
             display: flex;
             align-items: center;
-            gap: 6px;
+            justify-content: space-between;
+            width: 100%;
+            text-align: left;
+            box-sizing: border-box;
         }
-        .uid-btn:hover { background: rgba(56, 189, 248, 0.12); color: var(--text-main); border-color: var(--accent); }
+        .uid-btn-info {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            flex: 1;
+            line-height: 1.35;
+        }
+        .uid-btn-actions {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            opacity: 0.7;
+            transition: opacity 0.15s;
+        }
+        .uid-btn:hover .uid-btn-actions { opacity: 1; }
+        .uid-btn:hover {
+            background: rgba(56, 189, 248, 0.1);
+            color: var(--text-main);
+            border-color: rgba(56, 189, 248, 0.35);
+        }
         .uid-btn.active {
-            background: linear-gradient(135deg, #0284c7, #0f766e);
+            background: linear-gradient(135deg, rgba(2, 132, 199, 0.4), rgba(14, 165, 233, 0.22));
             color: #ffffff;
-            border-color: #38bdf8;
-            box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35);
+            border-color: var(--accent);
+            box-shadow: 0 0 12px rgba(56, 189, 248, 0.25);
         }
+        .uid-btn.summary-btn {
+            border-color: rgba(192, 132, 252, 0.3);
+            background: rgba(192, 132, 252, 0.08);
+            color: var(--purple);
+            font-weight: 700;
+            margin-top: 4px;
+        }
+        .uid-btn.summary-btn:hover {
+            background: rgba(192, 132, 252, 0.18);
+            color: #ffffff;
+            border-color: var(--purple);
+        }
+        .uid-btn.summary-btn.active {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.4), rgba(126, 34, 206, 0.4));
+            color: #ffffff;
+            border-color: var(--purple);
+            box-shadow: 0 0 12px var(--purple-glow);
+        }
+
+        /* Banner Subtab Button */
+        .sidebar-subtab-btn {
+            background: rgba(16, 23, 41, 0.5);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 9px 12px;
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            width: 100%;
+            text-align: left;
+            box-sizing: border-box;
+        }
+        .sidebar-subtab-btn:hover {
+            background: rgba(56, 189, 248, 0.08);
+            color: var(--text-main);
+            border-color: rgba(56, 189, 248, 0.35);
+        }
+        .sidebar-subtab-btn.active {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.25), rgba(14, 165, 233, 0.15));
+            border-color: var(--accent);
+            color: #ffffff;
+            font-weight: 700;
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.22);
+        }
+
+        .sidebar-bottom {
+            padding-top: 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        /* Responsive collapse for small screens */
+        @media (max-width: 900px) {
+            .hsr-layout-container {
+                grid-template-columns: 1fr;
+            }
+            .unified-sidebar {
+                position: static;
+                max-height: none;
+            }
+            .sidebar-list {
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+            .uid-btn, .sidebar-subtab-btn {
+                width: auto;
+            }
+        }
+
+        /* Level 1: Accounts (UID Tabs) */
+        .account-view { display: none; }
+        .account-view.active { display: block; animation: fadeIn 0.25s ease-out; }
+
         .uid-edit-btn {
             background: rgba(255, 255, 255, 0.08);
             border: 1px solid rgba(255, 255, 255, 0.2);
@@ -260,23 +402,6 @@
             border-color: var(--accent);
             color: #ffffff;
             transform: scale(1.08);
-        }
-        .uid-btn.summary-btn {
-            border-color: rgba(192, 132, 252, 0.4);
-            background: rgba(192, 132, 252, 0.1);
-            color: var(--purple);
-            font-weight: 700;
-        }
-        .uid-btn.summary-btn:hover {
-            background: rgba(192, 132, 252, 0.2);
-            color: #ffffff;
-            border-color: var(--purple);
-        }
-        .uid-btn.summary-btn.active {
-            background: linear-gradient(135deg, rgba(168, 85, 247, 0.85), rgba(126, 34, 206, 0.95));
-            color: #ffffff;
-            border-color: var(--purple);
-            box-shadow: 0 4px 14px var(--purple-glow);
         }
 
         /* Level 2: Banner Sub-Navigation Tabs */
@@ -855,6 +980,43 @@
             transform: translate(-50%, -120%);
         }
 
+        /* Smooth Scroll & Scroll-to-Top Button */
+        html { scroll-behavior: smooth; }
+        #scroll-top-btn {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: rgba(13, 19, 34, 0.88);
+            backdrop-filter: blur(8px);
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(12px);
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.6), 0 0 10px var(--accent-glow);
+            z-index: 1000;
+        }
+        #scroll-top-btn.visible {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        #scroll-top-btn:hover {
+            background: var(--accent);
+            color: #070a13;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(56, 189, 248, 0.5);
+        }
+
         /* Toast Notifications */
         #toast {
             position: fixed;
@@ -1245,6 +1407,8 @@ if __name__ == '__main__':
 <div id="svg-tooltip"></div>
 <!-- Toast Alert -->
 <div id="toast">Copied to clipboard! ✓</div>
+<!-- Sticky Scroll to Top Button -->
+<button id="scroll-top-btn" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" title="Scroll to Top">▲</button>
 
 <script>
     // ==========================================
@@ -1310,7 +1474,11 @@ if __name__ == '__main__':
         else if (tabId === 'guide-view') window.history.replaceState(null, null, '#guide');
     }
 
+    let currentHsrUid = null;
+    let currentHsrBannerKey = '11';
+
     function switchUIDTab(uid) {
+        currentHsrUid = uid;
         document.querySelectorAll('.account-view').forEach(v => v.classList.remove('active'));
         document.querySelectorAll('.uid-btn').forEach(b => b.classList.remove('active'));
         
@@ -1318,18 +1486,34 @@ if __name__ == '__main__':
         const targetBtn = document.getElementById(`btn-${uid}`);
         if (targetView) targetView.classList.add('active');
         if (targetBtn) targetBtn.classList.add('active');
+
+        // Check if current active banner exists in target account, fallback to '11' if not
+        let targetPanel = document.getElementById(`panel-${uid}-${currentHsrBannerKey}`);
+        if (!targetPanel) {
+            currentHsrBannerKey = '11';
+        }
+        switchBannerSubtab(uid, currentHsrBannerKey);
     }
 
     function switchBannerSubtab(uid, bannerKey) {
-        const accView = document.getElementById(`acc-${uid}`);
-        if (!accView) return;
-        accView.querySelectorAll('.banner-view-panel').forEach(p => p.classList.remove('active'));
-        accView.querySelectorAll('.subtab-btn').forEach(b => b.classList.remove('active'));
+        if (!uid) uid = currentHsrUid;
+        currentHsrBannerKey = bannerKey;
 
-        const targetPanel = document.getElementById(`panel-${uid}-${bannerKey}`);
-        const targetBtn = document.getElementById(`subtab-${uid}-${bannerKey}`);
-        if (targetPanel) targetPanel.classList.add('active');
-        if (targetBtn) targetBtn.classList.add('active');
+        const accView = document.getElementById(`acc-${uid}`);
+        if (accView) {
+            accView.querySelectorAll('.banner-view-panel').forEach(p => p.classList.remove('active'));
+            const targetPanel = document.getElementById(`panel-${uid}-${bannerKey}`);
+            if (targetPanel) targetPanel.classList.add('active');
+        }
+
+        // Highlight active subtab in unified sidebar
+        document.querySelectorAll('.sidebar-subtab-btn').forEach(b => {
+            if (b.dataset.bannerKey === bannerKey) {
+                b.classList.add('active');
+            } else {
+                b.classList.remove('active');
+            }
+        });
     }
 
     function updateDropZoneVisibility() {
@@ -1371,7 +1555,20 @@ if __name__ == '__main__':
 
         updateDropZoneVisibility();
         setupSVGTooltips();
+        setupScrollTopListener();
     };
+
+    function setupScrollTopListener() {
+        const topBtn = document.getElementById('scroll-top-btn');
+        if (!topBtn) return;
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 300) {
+                topBtn.classList.add('visible');
+            } else {
+                topBtn.classList.remove('visible');
+            }
+        });
+    }
 
     // ==========================================
     // 3. TOAST, CLIPBOARD, MODAL & TOOLTIPS
@@ -2372,25 +2569,79 @@ if __name__ == '__main__':
         }
 
         let firstUid = uids[0];
+        if (!currentHsrUid || (!accountsDict[currentHsrUid] && currentHsrUid !== 'ALL_ACCOUNTS')) {
+            currentHsrUid = firstUid;
+        }
 
-        // Top Accounts Row (with All-Accounts Summary sitting at the back of the accounts list)
-        let html = `<div class="uid-container"><div class="uid-bar">`;
-        html += `<div class="uid-tabs">`;
-        uids.forEach(uid => {
-            let active = (uid === firstUid) ? " active" : "";
-            html += `<button id="btn-${uid}" class="uid-btn${active}" onclick="switchUIDTab('${uid}')">${formatAccountDisplay(uid)} <span class="uid-edit-btn" onclick="promptEditNickname(event, '${uid}')" title="Edit account nickname">✏️</span><span class="uid-del-btn" onclick="deleteSingleAccount(event, '${uid}')" title="Delete account ${uid}">✕</span></button>`;
+        // Check if any account has collab banners
+        let hasCollabWarps = false;
+        uids.forEach(u => {
+            (accountsDict[u] || []).forEach(item => {
+                if (item.gacha_type === '21' || item.gacha_type === '22') hasCollabWarps = true;
+            });
         });
-        // The All-Accounts Summary tab sitting at the back of the accounts list
-        html += `<button id="btn-ALL_ACCOUNTS" class="uid-btn summary-btn" onclick="switchUIDTab('ALL_ACCOUNTS')">📊 All-Accounts Summary</button>`;
-        html += `</div>`;
-        html += `<div style="display:flex; gap:8px;">
-            <button class="clear-btn" onclick="clearData('hsr_accounts')">Clear All HSR Data</button>
-        </div></div></div>`;
+
+        // 2-Column Layout: Sticky Unified Navigation Sidebar (Accounts + Banners) + Main Content Area
+        let html = `<div class="hsr-layout-container">`;
+
+        // Left Sticky Unified Sidebar
+        html += `
+        <aside class="unified-sidebar">
+            <!-- Section 1: Accounts List -->
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">
+                    <span>ACCOUNTS</span>
+                    <span class="count">${uids.length}</span>
+                </div>
+                <div class="sidebar-list">`;
+
+        uids.forEach(uid => {
+            let active = (uid === currentHsrUid) ? " active" : "";
+            html += `
+            <div id="btn-${uid}" class="uid-btn${active}" onclick="switchUIDTab('${uid}')">
+                <div class="uid-btn-info">${formatAccountDisplay(uid)}</div>
+                <div class="uid-btn-actions">
+                    <span class="uid-edit-btn" onclick="promptEditNickname(event, '${uid}')" title="Edit account nickname">✏️</span>
+                    <span class="uid-del-btn" onclick="deleteSingleAccount(event, '${uid}')" title="Delete account ${uid}">✕</span>
+                </div>
+            </div>`;
+        });
+
+        let allAccActive = (currentHsrUid === 'ALL_ACCOUNTS') ? " active" : "";
+        html += `
+            <div id="btn-ALL_ACCOUNTS" class="uid-btn summary-btn${allAccActive}" onclick="switchUIDTab('ALL_ACCOUNTS')">
+                <div class="uid-btn-info">📊 All Accounts</div>
+            </div>
+            </div>
+            </div>
+
+            <!-- Section 2: Banner Subtabs -->
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">
+                    <span>BANNERS</span>
+                </div>
+                <div id="sidebar-banner-subtabs" class="sidebar-list">
+                    <button class="sidebar-subtab-btn${currentHsrBannerKey === '11' ? ' active' : ''}" data-banner-key="11" onclick="switchBannerSubtab(null, '11')">🌟 Character</button>
+                    <button class="sidebar-subtab-btn${currentHsrBannerKey === '12' ? ' active' : ''}" data-banner-key="12" onclick="switchBannerSubtab(null, '12')">🗡️ Light Cone</button>
+                    <button class="sidebar-subtab-btn${currentHsrBannerKey === '1' ? ' active' : ''}" data-banner-key="1" onclick="switchBannerSubtab(null, '1')">🌌 Stellar Warp</button>
+                    <button class="sidebar-subtab-btn${currentHsrBannerKey === '2' ? ' active' : ''}" data-banner-key="2" onclick="switchBannerSubtab(null, '2')">🎟️ Departure</button>
+                    ${hasCollabWarps ? `<button class="sidebar-subtab-btn${currentHsrBannerKey === 'collab' ? ' active' : ''}" data-banner-key="collab" onclick="switchBannerSubtab(null, 'collab')">🤝 Collab</button>` : ''}
+                </div>
+            </div>
+
+            <!-- Section 3: Sidebar Bottom Actions -->
+            <div class="sidebar-bottom">
+                <button class="clear-btn" style="width:100%; text-align:center; padding:7px 10px; font-size:11px;" onclick="clearData('hsr_accounts')">🗑️ Clear All Accounts</button>
+            </div>
+        </aside>`;
+
+        // Right Main Content Area (Containing the account panels)
+        html += `<div class="account-main-content">`;
 
         // 1. Render Each Individual Account (Strictly isolated, single-view display)
         uids.forEach(uid => {
             let data = accountsDict[uid] || [];
-            let active = (uid === firstUid) ? " active" : "";
+            let active = (uid === currentHsrUid) ? " active" : "";
             html += `<div id="acc-${uid}" class="account-view${active}">`;
 
             let banners = { '11': [], '12': [], '1': [], '2': [], '21': [], '22': [] };
@@ -2400,27 +2651,14 @@ if __name__ == '__main__':
                 }
             });
 
-            // Sub-Navigation Tabs inside this specific account
-            html += `<div class="banner-subtabs">
-                <button id="subtab-${uid}-11" class="subtab-btn active" onclick="switchBannerSubtab('${uid}', '11')">🌟 Character Event</button>
-                <button id="subtab-${uid}-12" class="subtab-btn" onclick="switchBannerSubtab('${uid}', '12')">🗡️ Light Cone Event</button>
-                <button id="subtab-${uid}-1" class="subtab-btn" onclick="switchBannerSubtab('${uid}', '1')">🌌 Stellar Warp</button>
-                <button id="subtab-${uid}-2" class="subtab-btn" onclick="switchBannerSubtab('${uid}', '2')">🎟️ Departure Warp</button>`;
-            
-            if (banners['21'].length || banners['22'].length) {
-                html += `<button id="subtab-${uid}-collab" class="subtab-btn" onclick="switchBannerSubtab('${uid}', 'collab')">🤝 Collab Warps</button>`;
-            }
-
-            html += `</div>`;
-
             // Isolated Banner Panels
-            html += renderBannerPanel(uid, '11', '11', 'Character Event Warp', `Limited Character Pool • UID ${uid}`, banners['11'], true, false);
-            html += renderBannerPanel(uid, '12', '12', 'Light Cone Event Warp', `Limited Light Cone Pool • UID ${uid}`, banners['12'], false, false);
-            html += renderBannerPanel(uid, '1', '1', 'Stellar Warp', `Permanent Standard Pool • UID ${uid}`, banners['1'], false, false);
-            html += renderBannerPanel(uid, '2', '2', 'Departure Warp', `Beginner Discount Pool • UID ${uid}`, banners['2'], false, false);
+            html += renderBannerPanel(uid, '11', '11', 'Character Event Warp', `Limited Character Pool • UID ${uid}`, banners['11'], currentHsrBannerKey === '11', false);
+            html += renderBannerPanel(uid, '12', '12', 'Light Cone Event Warp', `Limited Light Cone Pool • UID ${uid}`, banners['12'], currentHsrBannerKey === '12', false);
+            html += renderBannerPanel(uid, '1', '1', 'Stellar Warp', `Permanent Standard Pool • UID ${uid}`, banners['1'], currentHsrBannerKey === '1', false);
+            html += renderBannerPanel(uid, '2', '2', 'Departure Warp', `Beginner Discount Pool • UID ${uid}`, banners['2'], currentHsrBannerKey === '2', false);
 
             if (banners['21'].length || banners['22'].length) {
-                html += renderBannerPanel(uid, '21', 'collab', 'Collab Warp Hub', `Special Crossover Pool • UID ${uid}`, banners['21'], false, false);
+                html += renderBannerPanel(uid, '21', 'collab', 'Collab Warp Hub', `Special Crossover Pool • UID ${uid}`, banners['21'], currentHsrBannerKey === 'collab', false);
             }
 
             html += `</div>`; // Close account-view
@@ -2436,28 +2674,20 @@ if __name__ == '__main__':
             });
         });
 
-        html += `<div id="acc-ALL_ACCOUNTS" class="account-view">`;
-        html += `<div class="banner-subtabs">
-            <button id="subtab-ALL_ACCOUNTS-11" class="subtab-btn active" onclick="switchBannerSubtab('ALL_ACCOUNTS', '11')">🌟 Character Event</button>
-            <button id="subtab-ALL_ACCOUNTS-12" class="subtab-btn" onclick="switchBannerSubtab('ALL_ACCOUNTS', '12')">🗡️ Light Cone Event</button>
-            <button id="subtab-ALL_ACCOUNTS-1" class="subtab-btn" onclick="switchBannerSubtab('ALL_ACCOUNTS', '1')">🌌 Stellar Warp</button>
-            <button id="subtab-ALL_ACCOUNTS-2" class="subtab-btn" onclick="switchBannerSubtab('ALL_ACCOUNTS', '2')">🎟️ Departure Warp</button>`;
-        
-        if (combinedBanners['21'].length || combinedBanners['22'].length) {
-            html += `<button id="subtab-ALL_ACCOUNTS-collab" class="subtab-btn" onclick="switchBannerSubtab('ALL_ACCOUNTS', 'collab')">🤝 Collab Warps</button>`;
-        }
-        html += `</div>`;
+        let allActive = (currentHsrUid === 'ALL_ACCOUNTS') ? " active" : "";
+        html += `<div id="acc-ALL_ACCOUNTS" class="account-view${allActive}">`;
 
-        html += renderBannerPanel('ALL_ACCOUNTS', '11', '11', 'Character Event Warp (Combined)', `All Accounts Combined (${uids.length} Accounts)`, combinedBanners['11'], true, true);
-        html += renderBannerPanel('ALL_ACCOUNTS', '12', '12', 'Light Cone Event Warp (Combined)', `All Accounts Combined (${uids.length} Accounts)`, combinedBanners['12'], false, true);
-        html += renderBannerPanel('ALL_ACCOUNTS', '1', '1', 'Stellar Warp (Combined)', `All Accounts Combined (${uids.length} Accounts)`, combinedBanners['1'], false, true);
-        html += renderBannerPanel('ALL_ACCOUNTS', '2', '2', 'Departure Warp (Combined)', `All Accounts Combined (${uids.length} Accounts)`, combinedBanners['2'], false, true);
+        html += renderBannerPanel('ALL_ACCOUNTS', '11', '11', 'Character Event Warp (Combined)', `All Accounts Combined (${uids.length} Accounts)`, combinedBanners['11'], currentHsrBannerKey === '11', true);
+        html += renderBannerPanel('ALL_ACCOUNTS', '12', '12', 'Light Cone Event Warp (Combined)', `All Accounts Combined (${uids.length} Accounts)`, combinedBanners['12'], currentHsrBannerKey === '12', true);
+        html += renderBannerPanel('ALL_ACCOUNTS', '1', '1', 'Stellar Warp (Combined)', `All Accounts Combined (${uids.length} Accounts)`, combinedBanners['1'], currentHsrBannerKey === '1', true);
+        html += renderBannerPanel('ALL_ACCOUNTS', '2', '2', 'Departure Warp (Combined)', `All Accounts Combined (${uids.length} Accounts)`, combinedBanners['2'], currentHsrBannerKey === '2', true);
 
         if (combinedBanners['21'].length || combinedBanners['22'].length) {
-            html += renderBannerPanel('ALL_ACCOUNTS', '21', 'collab', 'Collab Warp Hub (Combined)', `All Accounts Combined (${uids.length} Accounts)`, combinedBanners['21'], false, true);
+            html += renderBannerPanel('ALL_ACCOUNTS', '21', 'collab', 'Collab Warp Hub (Combined)', `All Accounts Combined (${uids.length} Accounts)`, combinedBanners['21'], currentHsrBannerKey === 'collab', true);
         }
 
         html += `</div>`; // Close acc-ALL_ACCOUNTS
+        html += `</div></div>`; // Close account-main-content & hsr-layout-container
 
         document.getElementById('hsr-content').innerHTML = html;
     }
